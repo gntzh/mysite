@@ -146,3 +146,6 @@ collected_static/
 # PyCharm
 .idea/
 blog/migrations/0002_auto_20191102_0954.py
+
+# uWSGI
+scripts/uwsgi.pid
