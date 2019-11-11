@@ -15,7 +15,8 @@ from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -134,7 +135,7 @@ STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = "user.User"
 
-## Email
+# Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.sina.com'
 EMAIL_PORT = 25
@@ -145,7 +146,7 @@ EMAIL_SUBJECT_PREFIX = u'[邮箱验证]'
 # EMAIL_USE_TLS = False
 DEFAULT_EMAIL_FROM = "my_sites@sina.com"
 
-## DRF
+# DRF
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -186,7 +187,7 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-## django-cors-headers
+# django-cors-headers
 # CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_METHODS = (
@@ -212,3 +213,15 @@ CORS_ALLOW_HEADERS = (
     'x-requested-with',
     'Pragma',
 )
+
+# Static files
+# 静态文件网页路径
+STATIC_URL = '/static/'
+# 其他需要收集的静态文件目录
+STATICFILES_DIRS = []
+# 收集来的静态文件存放目录
+STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
+
+# Media fiels
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
