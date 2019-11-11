@@ -18,7 +18,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "email": {"label": "邮箱"},
             "email_is_active": {"read_only": True},
             "last_login": {"read_only": True, 'format': '%Y-%m-%d %H:%M:%S'},
-            "groups": {"default": Group.objects.get(pk=1), "read_only": True,},
             "logo": {"help_text": "一个URL"}
         }
         validators = [validators.CheckUsername]
@@ -39,7 +38,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "password": {"required": False},
             "email": {"label": "邮箱", "required": False},
-            "groups": {"default": Group.objects.get(pk=1), },
             "username": {"required": True},
         }
 

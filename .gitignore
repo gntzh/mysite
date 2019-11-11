@@ -137,8 +137,12 @@ pre/
 *.db
 
 # migrations
-**/migrations/*initial.py
+**/migrations/
 !**/migrations/__init__.py
+
+# collected static files
+collected_static/
 
 # PyCharm
 .idea/
+blog/migrations/0002_auto_20191102_0954.py
