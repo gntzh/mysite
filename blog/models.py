@@ -8,7 +8,8 @@ User = settings.AUTH_USER_MODEL
 
 class Tag(models.Model):
     name = models.CharField('名称', max_length=32)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="创建者")
 
     class Meta:
         verbose_name = '标签'
@@ -24,11 +25,13 @@ class Tag(models.Model):
 class Category(models.Model):
     name = models.CharField('名称', max_length=64)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    parent = models.ForeignKey("self", blank=True, null=True, default=None, on_delete=models.CASCADE,
+                               verbose_name="父级分类", related_name="subs")
 
     class Meta:
         verbose_name = '分类'
         verbose_name_plural = verbose_name
-        unique_together = ["owner", "name"]
+        unique_together = ["owner", "name", "parent"]
         default_related_name = 'categories'
 
     def __str__(self):

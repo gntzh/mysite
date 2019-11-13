@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from .. import models
+from . import validators
 
 
 class TagSerializer(ModelSerializer):
@@ -12,33 +13,36 @@ class TagSerializer(ModelSerializer):
         return row.posts.count()
 
     def get_posts(self, row):
-        return [(post.id, post.title) for post in row.posts.all()]
+        return [{"id": post.id, "title": post.title} for post in row.posts.all()]
 
     class Meta:
         model = models.Tag
         fields = ["id", "name", "owner", "post_num", "posts"]
-        extra_kwargs = {
-            "post_num": {"read_only": True},
-        }
+        extra_kwargs = {}
 
 
 class CategorySerializer(ModelSerializer):
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     post_num = serializers.SerializerMethodField()
     posts = serializers.SerializerMethodField()
+    subs = serializers.SerializerMethodField()
+
+    def get_subs(self, row):
+        return [{"id": i.id, "name": i.name} for i in row.subs.all()]
 
     def get_post_num(self, row):
         return row.posts.count()
 
     def get_posts(self, row):
-        return [(post.id, post.title) for post in row.posts.all()]
+        return [{"id": post.id, "title": post.title} for post in row.posts.all()]
 
     class Meta:
         model = models.Category
-        fields = ["id", "name", "owner", "post_num", "posts"]
+        fields = ["id", "name", "parent", "subs", "owner", "post_num", "posts"]
         extra_kwargs = {
-            "post_num": {"read_only": True},
+            "parent": {'required': False, 'default': None}
         }
+        validators: [validators.validateParent, ]
 
 
 class PostSerializer(ModelSerializer):
@@ -51,7 +55,7 @@ class PostSerializer(ModelSerializer):
         return {"id": row.category.id, "name": row.category.name}
 
     def get_tags_display(self, row):
-        return ({"id":tag.id, "name": tag.name} for tag in row.tags.all())
+        return ({"id": tag.id, "name": tag.name} for tag in row.tags.all())
 
     def get_author_display(self, row):
         return {"id": row.author.id, "username": row.author.username}
