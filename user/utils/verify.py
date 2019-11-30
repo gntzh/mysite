@@ -10,7 +10,7 @@ User = get_user_model()
 
 
 def getDesMethod(user):
-    key = bytes(str(user.created_time)[-16:-8], encoding="utf-8")
+    key = bytes(str(user.created)[-16:-8], encoding="utf-8")
     iv = key
     method = pyDes.des(key, mode=pyDes.CBC, IV=iv, pad=None, padmode=pyDes.PAD_PKCS5)
     return method
@@ -38,9 +38,9 @@ def checkVerifyEmailUrl(key):
     data = method.decrypt(binascii.a2b_hex(token.encode("utf-8")), padmode=pyDes.PAD_PKCS5).decode("utf-8")
     print(data)
     now = datetime.now()
-    created_time, id_data, username = data.split("@")
-    created_time = datetime.strptime(created_time, '%Y-%m-%d %H:%M:%S')
-    delta = int((now - created_time).seconds)
+    created, id_data, username = data.split("@")
+    created = datetime.strptime(created, '%Y-%m-%d %H:%M:%S')
+    delta = int((now - created).seconds)
     if delta > 60*60*6:
         return False, user
     else:

@@ -50,29 +50,36 @@ class PostSerializer(ModelSerializer):
     tags_display = serializers.SerializerMethodField()
     category_display = serializers.SerializerMethodField()
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    excerpt = serializers.SerializerMethodField()
 
     def get_category_display(self, row):
-        return {"id": row.category.id, "name": row.category.name}
-
+        if row.category is not None:
+            return {"id": row.category.id, "name": row.category.name}
+        return {}
+    
     def get_tags_display(self, row):
         return ({"id": tag.id, "name": tag.name} for tag in row.tags.all())
 
     def get_author_display(self, row):
         return {"id": row.author.id, "username": row.author.username}
 
+    def get_excerpt(self, row):
+        return row.excerpt()
+
     class Meta:
         model = models.Post
-        fields = ["id", "title", "author", "author_display", "is_public", "allow_comments", "created_time",
-                  "modified_time", "tags", 'tags_display', "category", "category_display", "content", "vote"]
+        fields = ["id", "title", "author", "author_display", "is_public", "allow_comments", "created",
+                  "updated", "tags", 'tags_display', "category", "category_display", "excerpt" ,"content", "vote"]
         extra_kwargs = {
             # "title": {"required": False,},
             # "content": {"requiresd": False, },
-            "created_time": {"read_only": True, 'format': '%Y-%m-%d %H:%M:%S'},
-            "modified_time": {"read_only": True, 'format': '%Y-%m-%d %H:%M:%S'},
+            "created": {"read_only": True, 'format': '%Y-%m-%d %H:%M:%S'},
+            "updated": {"read_only": True, 'format': '%Y-%m-%d %H:%M:%S'},
             "tags": {"write_only": True},
             "category": {"write_only": True},
+            "vote": {"read_only": True},
+            "is_public": {"default": True},
             "tags_display": {"read_only": True},
             "category_display": {"read_only": True},
             "author_display": {"read_only": True},
-            "vote": {"read_only": True},
         }

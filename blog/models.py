@@ -45,12 +45,13 @@ class Post(models.Model):
                                verbose_name='作者')
     is_public = models.BooleanField("是否公开", default=True)
     allow_comments = models.BooleanField("是否允许评论", default=True)
-    created_time = models.DateTimeField('发布时间', auto_now_add=True)
-    modified_time = models.DateTimeField('最近修改', auto_now=True)
+    created = models.DateTimeField('发布时间', auto_now_add=True)
+    updated = models.DateTimeField('最近修改', auto_now=True)
     category = models.ForeignKey('Category',
                                  on_delete=models.DO_NOTHING,
                                  verbose_name='分类',
-                                 blank=True)
+                                 blank=True,
+                                 null=True)
     tags = models.ManyToManyField('Tag', blank=True, verbose_name='标签')
     content = models.TextField('内容', default="无内容")
     vote = models.PositiveIntegerField("点赞", default=0)
@@ -62,3 +63,6 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title[:32]
+    
+    def excerpt(self):
+        return self.content[:64]

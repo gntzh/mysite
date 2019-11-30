@@ -4,9 +4,9 @@ from .models import Post, Tag, Category
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'title', 'author', "created_time"]
-    list_filter = ['created_time', 'modified_time']
-    ordering = ('-modified_time', '-created_time', )
+    list_display = ['pk', 'title', 'author', "created"]
+    list_filter = ['created', 'updated']
+    ordering = ('-updated', '-created', )
     search_fields = ['content', ]
 
 

@@ -18,7 +18,7 @@ class User(AbstractUser):
         ),
     )
     email_is_active = models.BooleanField(verbose_name='邮箱状态', default=False)
-    created_time = models.DateTimeField("注册时间", auto_now_add=True)
+    created = models.DateTimeField("注册时间", auto_now_add=True)
     
     class Meta:
         verbose_name = "用户"

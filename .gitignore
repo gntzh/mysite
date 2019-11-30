@@ -129,10 +129,6 @@ dmypy.json
 # test
 pre/
 
-# VS Code
-.vscode/
-
-
 # db
 *.db
 
@@ -143,9 +139,14 @@ pre/
 # collected static files
 collected_static/
 
+# media files
+media/
+
+# VS Code
+.vscode/
+
 # PyCharm
 .idea/
-blog/migrations/0002_auto_20191102_0954.py
 
 # uWSGI
 scripts/uwsgi.pid

@@ -148,10 +148,13 @@ DEFAULT_EMAIL_FROM = "my_sites@sina.com"
 
 # DRF
 REST_FRAMEWORK = {
+    # Authentication
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    # Permissions
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticatedOrReadOnly", ),
+    # Throttling
     'DEFAULT_THROTTLE_CLASSES': (
         "rest_framework.throttling.ScopedRateThrottle",
         'rest_framework.throttling.AnonRateThrottle',
@@ -161,6 +164,13 @@ REST_FRAMEWORK = {
         'anon': '10/m',
         'user': '20/m'
     },
+    # Filtering
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',
+                                'rest_framework.filters.SearchFilter',
+                                'rest_framework.filters.OrderingFilter'),
+    # Pagination
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.CursorPagination',
+    'PAGE_SIZE': 50,
 }
 
 SIMPLE_JWT = {
