@@ -10,12 +10,9 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 from rest_framework import mixins
-import django_filters.rest_framework
-
-from rest_framework import filters
 
 from .utils.serializers import PostSerializer, TagSerializer, CategorySerializer
-from .utils import pagination, permissions
+from .utils import pagination, permissions, filters
 
 User = get_user_model()
 
@@ -42,12 +39,12 @@ class PostViewSet(
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             for i in serializer.data:
-                del(i["content"])
+                del (i["content"])
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
         for i in serializer.data:
-            del(i["content"])
+            del (i["content"])
         return Response(serializer.data)
 
 
@@ -61,10 +58,11 @@ class TagViewSet(
     permission_classes = [permissions.IsOwnerOrReadOnly, ]
     serializer_class = TagSerializer
     queryset = models.Tag.objects.all()
-    filterset_fields = ["id", "name"]
+    filter_backends = [filters.filters.DjangoFilterBackend, filters.drf_filters.SearchFilter, filters.drf_filters.OrderingFilter]
+    filterset_fields = ["name"]
     search_fields = ['name', 'owner']
-    ordering_fields = ["owner"]
-    ordering = 'posts'
+    ordering_fields = ["owner", ]
+    ordering = 'id'
     pagination_class = pagination.Pagination
 
 
@@ -78,19 +76,17 @@ class CategoryViewSet(
     permission_classes = [permissions.IsOwnerOrReadOnly, ]
     serializer_class = CategorySerializer
     queryset = models.Category.objects.all()
+    filter_backends = [filters.filters.DjangoFilterBackend, filters.drf_filters.SearchFilter, filters.drf_filters.OrderingFilter]
     filterset_fields = ["id", "name"]
     search_fields = ['name', 'owner']
     ordering_fields = ["posts", "post_num"]
-    ordering = 'posts'
+    ordering = 'id'
     pagination_class = pagination.Pagination
 
 
 class OneManPostList(mixins.ListModelMixin, GenericViewSet):
     permission_classes = [permissions.UserExist, ]
     serializer_class = PostSerializer
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend,
-                       filters.SearchFilter,
-                       ]
     filterset_fields = ["tags", "category"]
     search_fields = ['title', 'content']
     ordering_fields = ["created", "updated"]
@@ -106,8 +102,8 @@ class OneManPostList(mixins.ListModelMixin, GenericViewSet):
 
 class OneManTagList(mixins.ListModelMixin, GenericViewSet):
     permission_classes = [permissions.UserExist, ]
-    serializer_class = TagSerializer
-    ordering = 'posts'
+    serializer_class = TagSerializerfilter_backends = [filters.filters.DjangoFilterBackend, filters.drf_filters.SearchFilter, filters.drf_filters.OrderingFilter]
+    ordering = 'id'
     pagination_class = pagination.Pagination
 
     def get_queryset(self):
@@ -118,7 +114,8 @@ class OneManTagList(mixins.ListModelMixin, GenericViewSet):
 class OneManCategoryList(mixins.ListModelMixin, GenericViewSet):
     serializer_class = CategorySerializer
     permission_classes = [permissions.UserExist, ]
-    ordering = 'posts'
+    filter_backends = [filters.filters.DjangoFilterBackend, filters.drf_filters.SearchFilter, filters.drf_filters.OrderingFilter]
+    ordering = 'id'
     pagination_class = pagination.Pagination
 
     def get_queryset(self):
