@@ -1,5 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
+
 from .. import models
 from . import validators
 
@@ -13,7 +14,11 @@ class TagSerializer(ModelSerializer):
         return row.posts.count()
 
     def get_posts(self, row):
-        return [{"id": post.id, "title": post.title} for post in row.posts.all()]
+        return [{"id": post.id,
+                 "title": post.title,
+                 "created": post.created.strftime('%Y-%m-%d %H:%M:%S'),
+                 "author": post.author.username}
+                for post in row.posts.all()]
 
     class Meta:
         model = models.Tag
@@ -34,7 +39,11 @@ class CategorySerializer(ModelSerializer):
         return row.posts.count()
 
     def get_posts(self, row):
-        return [{"id": post.id, "title": post.title} for post in row.posts.all()]
+        return [{"id": post.id,
+                 "title": post.title,
+                 "created": post.created.strftime('%Y-%m-%d %H:%M:%S'),
+                 "author": post.author.username}
+                for post in row.posts.all()]
 
     class Meta:
         model = models.Category
@@ -56,7 +65,7 @@ class PostSerializer(ModelSerializer):
         if row.category is not None:
             return {"id": row.category.id, "name": row.category.name}
         return {}
-    
+
     def get_tags_display(self, row):
         return ({"id": tag.id, "name": tag.name} for tag in row.tags.all())
 
@@ -69,7 +78,7 @@ class PostSerializer(ModelSerializer):
     class Meta:
         model = models.Post
         fields = ["id", "title", "author", "author_display", "is_public", "allow_comments", "created",
-                  "updated", "tags", 'tags_display', "category", "category_display", "excerpt" ,"content", "vote"]
+                  "updated", "tags", 'tags_display', "category", "category_display", "excerpt", "content", "vote"]
         extra_kwargs = {
             # "title": {"required": False,},
             # "content": {"requiresd": False, },
