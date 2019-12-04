@@ -5,4 +5,4 @@ DEBUG = True
 
 INTERNAL_IPS = ['127.0.0.1', ]
 
-SITE_HOST = 'http://127.0.0.1:8000'
+SITE_HOST = ['shoor.xyz', 'http://127.0.0.1:8000', ]
