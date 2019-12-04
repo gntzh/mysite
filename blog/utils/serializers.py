@@ -38,7 +38,7 @@ class CategorySerializer(ModelSerializer):
     def get_post_num(self, row):
         return row.posts.count()
 
-    def get_posts(self, row):
+    def get_posts(self, row): 
         return [{"id": post.id,
                  "title": post.title,
                  "created": post.created.strftime('%Y-%m-%d %H:%M:%S'),
