@@ -3,7 +3,10 @@ import os
 
 # Default config between dev and prd
 # export SITE_ENV =  'production'
-if os.environ.get('SITE_ENV', None):
-    from .config.production import *
+ENV = os.environ.get('SITE_ENV', None)
+if ENV == "production":
+    from .config.prod import *
+elif ENV == "development":
+    from .config.dev import *
 else:
-    from .config.develop import *
+    from .config.dev import *

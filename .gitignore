@@ -150,3 +150,7 @@ media/
 
 # uWSGI
 scripts/uwsgi.pid
+
+# log
+
+log/

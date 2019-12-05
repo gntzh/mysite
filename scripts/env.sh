@@ -1,1 +1,1 @@
-export SITE_ENV =  'production'
+export SITE_ENV='production'
