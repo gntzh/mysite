@@ -12,13 +12,13 @@ class PostAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'parent']
+    list_display = ['id', 'name', 'parent', 'owner']
     ordering = ('name', )
     search_fields = ['name', ]
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name']
+    list_display = ['id', 'name', 'owner']
     ordering = ('name', )
     search_fields = ['name', ]

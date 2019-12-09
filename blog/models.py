@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-# Create your models here.
+from django.core.exceptions import ValidationError
 
 
 User = settings.AUTH_USER_MODEL
@@ -27,6 +27,11 @@ class Category(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     parent = models.ForeignKey("self", blank=True, null=True, default=None, on_delete=models.CASCADE,
                                verbose_name="父级分类", related_name="subs")
+
+    def validate_unique(self, exclude=None):
+        if self.parent is None and Category.objects.exclude(id=self.id).filter(name=self.name, owner=self.owner, parent__isnull=True).exists():
+            raise ValidationError("字段 owner, name, parent 必须能构成唯一集合。")
+        super(Category, self).validate_unique(exclude)
 
     class Meta:
         verbose_name = '分类'
@@ -63,6 +68,6 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title[:32]
-    
+
     def excerpt(self):
         return self.content[:64]

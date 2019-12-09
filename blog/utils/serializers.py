@@ -51,7 +51,13 @@ class CategorySerializer(ModelSerializer):
         extra_kwargs = {
             "parent": {'required': False, 'default': None}
         }
-        validators: [validators.validateParent, ]
+        validators = [validators.UniqueTogetherValidator(models.Category.objects.all(), ['name', 'parent', 'owner'])]
+
+    def validate(self, data):
+        print(data)
+        data = validators.uniqueCate(data)
+        data = validators.validateParent(data)
+        return data
 
 
 class PostSerializer(ModelSerializer):
