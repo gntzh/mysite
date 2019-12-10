@@ -53,7 +53,7 @@ class TagViewSet(
 
     filter_backends = [filters.filters.DjangoFilterBackend,
                        filters.drf_filters.SearchFilter, filters.drf_filters.OrderingFilter]
-    filterset_fields = ['id', 'name', 'owner']
+    filterset_fields = ['id', 'name', 'owner', ]
     search_fields = ['name', 'owner']
     ordering_fields = ["owner", ]
     ordering = 'id'
@@ -74,8 +74,9 @@ class CategoryViewSet(
     pagination_class = pagination.Pagination
 
     filter_backends = [filters.filters.DjangoFilterBackend,
-                       filters.drf_filters.SearchFilter, filters.drf_filters.OrderingFilter]
-    filterset_fields = ['id', 'name', 'owner']
+                       filters.drf_filters.SearchFilter,
+                       filters.drf_filters.OrderingFilter]
+    filterset_class = filters.CategoryFilter
     search_fields = ['name', 'owner']
     ordering_fields = ["posts", "post_num"]
     ordering = 'id'

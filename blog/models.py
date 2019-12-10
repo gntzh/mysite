@@ -33,6 +33,15 @@ class Category(models.Model):
             raise ValidationError("字段 owner, name, parent 必须能构成唯一集合。")
         super(Category, self).validate_unique(exclude)
 
+    def clean(self):
+        if self.parent == self:
+            raise ValidationError("不允许将父级分类设为自己")
+        parent_owner = getattr(self.parent, 'owner', None)
+        print(parent_owner)
+        if parent_owner is not None and parent_owner != self.owner:
+            raise ValidationError("不允许关联他人的分类")
+        super(Category, self).clean()
+
     class Meta:
         verbose_name = '分类'
         verbose_name_plural = verbose_name
