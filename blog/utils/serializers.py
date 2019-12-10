@@ -1,5 +1,4 @@
-from rest_framework.serializers import ModelSerializer
-from rest_framework import serializers
+from utils.rest.serializers import drf as serializers, ModelSerializer
 
 from .. import models
 from . import validators
@@ -38,7 +37,7 @@ class CategorySerializer(ModelSerializer):
     def get_post_num(self, row):
         return row.posts.count()
 
-    def get_posts(self, row): 
+    def get_posts(self, row):
         return [{"id": post.id,
                  "title": post.title,
                  "created": post.created.strftime('%Y-%m-%d %H:%M:%S'),
@@ -51,7 +50,8 @@ class CategorySerializer(ModelSerializer):
         extra_kwargs = {
             "parent": {'required': False, 'default': None}
         }
-        validators = [validators.UniqueTogetherValidator(models.Category.objects.all(), ['name', 'parent', 'owner'])]
+        validators = [validators.UniqueTogetherValidator(
+            models.Category.objects.all(), ['name', 'parent', 'owner'])]
 
     def validate(self, data):
         print(data)

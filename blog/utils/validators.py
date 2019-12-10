@@ -23,7 +23,8 @@ def validateParent(data):
 
 def uniqueCate(data):
     id = createOrUpdate(data)
-    queryset = models.Category.objects.filter(name=data['name'], owner=data['owner'], parent__isnull=True)
+    queryset = models.Category.objects.filter(
+        name=data['name'], owner=data['owner'], parent__isnull=True)
     if(id):
         queryset.exclude(id=data.id)
     if data['parent'] is None and qs_exists(queryset):
