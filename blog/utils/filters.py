@@ -4,8 +4,8 @@ from .. import models
 
 
 class CategoryFilter(filters.FilterSet):
-    top = filters.BooleanFilter('parent', 'isnull', label='是否顶级分类')
+    is_root = filters.BooleanFilter('parent', 'isnull', label='是否顶级分类')
 
     class Meta:
         model = models.Category
-        fields = ('top', 'id', 'name', 'owner', 'parent', )
+        fields = ('is_root', 'id', 'name', 'owner', 'parent', )

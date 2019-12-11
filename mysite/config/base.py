@@ -41,11 +41,12 @@ INSTALLED_APPS = [
     # Third-party App
     "rest_framework",
     'django_filters',
-    "debug_toolbar",
+    'debug_toolbar',
     'corsheaders',
     # Costumed App
-    "blog.apps.BlogConfig",
-    "user.apps.UserConfig",
+    'blog.apps.BlogConfig',
+    'user.apps.UserConfig',
+    'comment.apps.CommentConfig',
 
 ]
 
@@ -233,6 +234,10 @@ STATICFILES_DIRS = []
 # 收集来的静态文件存放目录
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 
-# Media fiels
+# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# 允许评论的模型
+## 二元元组的第一项为模型的app, 第二项为模型的名称, 分别对应django_content_type表中的app_label和model
+ALLOW_COMMENTS_MODELS = [('blog', 'post'), ('user', 'user'), ]

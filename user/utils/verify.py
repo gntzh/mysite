@@ -19,7 +19,7 @@ def getDesMethod(user):
 def generateVerifyEmailUrl(user):
     if isinstance(user, User):
         try:
-            data = bytes(datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "@" + str(user.id) + "@" + user.username, encoding="utf-8")
+            data = bytes(datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '@' + str(user.id) + '@' + user.username, encoding="utf-8")
             method = getDesMethod(user)
             token = binascii.b2a_hex(method.encrypt(data, padmode=pyDes.PAD_PKCS5))
             user_id = bytes(str(user.id), encoding="utf-8")
@@ -31,14 +31,14 @@ def generateVerifyEmailUrl(user):
 
 
 def checkVerifyEmailUrl(key):
-    token, user_id = base64.b64decode(key.encode("utf-8")).decode("utf-8").split("@")
+    token, user_id = base64.b64decode(key.encode("utf-8")).decode("utf-8").split('@')
     user_id = int(user_id)
     user = User.objects.get(id=user_id)
     method = getDesMethod(user)
     data = method.decrypt(binascii.a2b_hex(token.encode("utf-8")), padmode=pyDes.PAD_PKCS5).decode("utf-8")
     print(data)
     now = datetime.now()
-    created, id_data, username = data.split("@")
+    created, id_data, username = data.split('@')
     created = datetime.strptime(created, '%Y-%m-%d %H:%M:%S')
     delta = int((now - created).seconds)
     if delta > 60*60*6:

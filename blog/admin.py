@@ -1,14 +1,18 @@
 from django.contrib import admin
 from .models import Post, Tag, Category
-# Register your models here.
+from comment.admin import CommentInline
 
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'title', 'author', "created"]
+    list_display = ['pk', 'title', 'author', 'created']
     list_filter = ['created', 'updated']
     ordering = ('-updated', '-created', )
     search_fields = ['content', ]
+
+    inlines = [
+        CommentInline,
+    ]
 
 
 @admin.register(Category)

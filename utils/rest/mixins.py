@@ -12,7 +12,6 @@ class RetrieveModelMixin:
         return drf.Response(serializer.data)
 
 
-
 class ListModelMixin:
     """
     List a queryset.
@@ -28,4 +27,3 @@ class ListModelMixin:
 
         serializer = self.get_serializer(queryset, many=True, excluded=excluded)
         return drf.Response(serializer.data)
-

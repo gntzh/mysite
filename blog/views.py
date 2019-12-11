@@ -30,9 +30,9 @@ class PostViewSet(
     queryset = models.Post.objects.filter(is_public=True)
     pagination_class = pagination.PostPagination
 
-    filterset_fields = ["tags", "category"]
+    filterset_fields = ['tags', 'category']
     search_fields = ['title', 'content']
-    ordering_fields = ["created", "updated"]
+    ordering_fields = ['created', 'updated']
     ordering = 'created'
 
     many_excluded = ('content', 'is_public',)
@@ -55,7 +55,7 @@ class TagViewSet(
                        filters.drf_filters.SearchFilter, filters.drf_filters.OrderingFilter]
     filterset_fields = ['id', 'name', 'owner', ]
     search_fields = ['name', 'owner']
-    ordering_fields = ["owner", ]
+    ordering_fields = ['owner', ]
     ordering = 'id'
 
     many_excluded = ('posts',)
@@ -63,7 +63,7 @@ class TagViewSet(
 
 class CategoryViewSet(
         mixins.CreateModelMixin,
-        mixins.RetrieveModelMixin,
+        RetrieveModelMixin,
         mixins.UpdateModelMixin,
         mixins.DestroyModelMixin,
         ListModelMixin,
@@ -78,23 +78,24 @@ class CategoryViewSet(
                        filters.drf_filters.OrderingFilter]
     filterset_class = filters.CategoryFilter
     search_fields = ['name', 'owner']
-    ordering_fields = ["posts", "post_num"]
+    ordering_fields = ['posts', 'post_num']
     ordering = 'id'
 
-    many_excluded = ('posts',)
+    many_excluded = ('posts', 'children')
+    one_excluded = ('is_leaf',)
 
 
 class OneManPostList(mixins.ListModelMixin, GenericViewSet):
     permission_classes = [permissions.UserExist, ]
     serializer_class = PostSerializer
-    filterset_fields = ["tags", "category"]
+    filterset_fields = ['tags', 'category']
     search_fields = ['title', 'content']
-    ordering_fields = ["created", "updated"]
+    ordering_fields = ['created', 'updated']
     ordering = 'created'
     pagination_class = pagination.PostPagination
 
     def get_queryset(self):
-        pk = int(self.request.path.strip("/").split("/")[-1])
+        pk = int(self.request.path.strip('/').split('/')[-1])
         if self.request.user and self.request.user.is_authenticated:
             return models.Post.objects.filter(author=pk)
         return models.Post.objects.filter(author=pk, is_public=True)

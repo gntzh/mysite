@@ -3,13 +3,13 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 User = get_user_model()
 
-OWNER_METHODS = ["PUT", "PATCH", "DELETE"]
+OWNER_METHODS = ['PUT', 'PATCH', 'DELETE']
 
 class IsOwnerOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
             return True
-        if request.method == "POST":
+        if request.method == 'POST':
             return IsAuthenticated().has_permission(request, view)
         return True
 
@@ -37,12 +37,12 @@ class IsOwnerOrReadOnly(BasePermission):
 
 class UserExist(BasePermission):
     def has_permission(self, request, view):
-        pk = request.path.strip("/").split("/")[-1]
+        pk = request.path.strip('/').split('/')[-1]
         pk = int(pk)
         print(pk)
         try:
             user = User.objects.get(pk=pk)
         except ObjectDoesNotExist:
-            self.message = "用户不存在"
+            self.message = '用户不存在'
             return False
         return True

@@ -9,7 +9,7 @@ User = get_user_model()
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    nickname = models.CharField(max_length=32, default="", verbose_name="昵称")
+    nickname = models.CharField(max_length=32, default='', verbose_name="昵称")
     fieldsets = (
         (None, {'fields': ('username', 'password', 'email', "email_is_active")}),
         (_('Personal info'), {'fields': ('nickname', )}),
