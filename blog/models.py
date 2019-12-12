@@ -19,7 +19,7 @@ class Tag(models.Model):
         default_related_name = 'tags'
 
     def __str__(self):
-        return self.name[:8]
+        return "<Tag(%s):%s>" % (self.id, self.name[:8])
 
 
 class Category(models.Model):
@@ -50,8 +50,48 @@ class Category(models.Model):
         unique_together = ['owner', 'name', 'parent']
         default_related_name = 'categories'
 
+    def postsNum(self):
+        return self.posts.count()
+    postsNum.short_description = '博客数量'
+
+    def isRoot(self):
+        if self.parent is None:
+            return True
+        return False
+
+    def isLeaf(self):
+        if self.children.exists():
+            return False
+        return True
+
+    def getPosition(self):
+        if self.isRoot():
+            return 'root'
+        elif self.isLeaf():
+            return 'leaf'
+        return 'sub'
+    getPosition.short_description = '节点位置'
+
+    def getLevel(self):
+        level = 1
+        node = self
+        while not node.isRoot():
+            level += 1
+            node = node.parent
+        return level
+
+    def getLeafLevel(self):
+        if self.isLeaf():
+            return 0
+        else:
+            return 1 + max(node.getLeafLevel() for node in self.children.prefetch_related())
+
+    def getLevels(self):
+        return self.getLevel(), self.getLeafLevel()
+    getLevels.short_description = '层数'
+
     def __str__(self):
-        return self.name[:16]
+        return "<Category(%s):%s>" % (self.id, self.name[:8])
 
 
 class Post(models.Model):
@@ -79,10 +119,10 @@ class Post(models.Model):
     def clean(self):
         # 无法得到要保存的tags, 如果是修改self.tags.all()拿到的是旧数据
         # 如果是创建, 无法拿到连Manager都拿不到
+        if self.author != self.category.owner:
+            raise ValidationError("不允许关联他人的分类<category(%s): %s>" % (
+                self.category.id, self.category.name))
         super(Post, self).clean()
-
-    def __str__(self):
-        return self.title[:32]
 
     def excerpt(self):
         return self.content[:64]
@@ -91,3 +131,6 @@ class Post(models.Model):
         verbose_name = '博文'
         verbose_name_plural = verbose_name
         default_related_name = 'posts'
+
+    def __str__(self):
+        return "<Post(%s):%s>" % (self.id, self.title[:8])

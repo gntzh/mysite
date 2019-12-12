@@ -5,6 +5,7 @@ from .models import Comment
 
 class CommentInline(GenericStackedInline):
     model = Comment
+    extra = 1
 
 
 @admin.register(Comment)

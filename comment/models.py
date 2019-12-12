@@ -33,4 +33,4 @@ class Comment(models.Model):
         default_related_name = 'comments'
 
     def __str__(self):
-        return "<%s: %s>" % (self.owner.username, self.content[:8])
+        return "<Comment(%s): %s>" % (self.id, self.content[:8])

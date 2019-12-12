@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'blog.apps.BlogConfig',
     'user.apps.UserConfig',
     'comment.apps.CommentConfig',
+    'picture.apps.PictureConfig',
 
 ]
 
