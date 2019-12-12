@@ -9,6 +9,11 @@ class TagSerializer(ModelSerializer):
     post_num = serializers.SerializerMethodField()
     posts = serializers.SerializerMethodField()
 
+    class Meta:
+        model = models.Tag
+        fields = ['id', 'name', 'owner', 'post_num', 'posts']
+        extra_kwargs = {}
+
     def get_post_num(self, row):
         return row.posts.count()
 
@@ -18,11 +23,6 @@ class TagSerializer(ModelSerializer):
                  'created': post.created.strftime('%Y-%m-%d %H:%M:%S'),
                  'author': post.author.username}
                 for post in row.posts.all()]
-
-    class Meta:
-        model = models.Tag
-        fields = ['id', 'name', 'owner', 'post_num', 'posts']
-        extra_kwargs = {}
 
 
 class CategorySerializer(ModelSerializer):
@@ -31,29 +31,6 @@ class CategorySerializer(ModelSerializer):
     posts = serializers.SerializerMethodField()
     children = serializers.SerializerMethodField()
     is_leaf = serializers.SerializerMethodField()
-
-    def get_children(self, row):
-        return [{'id': i.id,
-                 'name': i.name, }
-                for i in row.children.all()]
-
-    def get_post_num(self, row):
-        return row.posts.count()
-
-    def get_posts(self, row):
-        return [{'id': post.id,
-                 'title': post.title,
-                 'created': post.created.strftime('%Y-%m-%d %H:%M:%S'),
-                 'author': post.author.username}
-                for post in row.posts.all()]
-
-    def get_is_leaf(self, row):
-        return not row.children.all().exists()
-
-    def validate(self, data):
-        data = validators.uniqueCate(data)
-        data = validators.validateParent(data)
-        return data
 
     class Meta:
         model = models.Category
@@ -65,6 +42,30 @@ class CategorySerializer(ModelSerializer):
         validators = [validators.UniqueTogetherValidator(
             models.Category.objects.all(), ['name', 'parent', 'owner'])]
 
+    def validate(self, data):
+        data = validators.uniqueCate(data)
+        data = validators.validateParent(data)
+        return data
+
+    def get_children(self, row):
+        return [{'id': i.id,
+                 'name': i.name, }
+                for i in row.children.all()]
+
+    def get_post_num(self, row):
+        return row.postsNum()
+
+    def get_posts(self, row):
+        return [{'id': post.id,
+                 'title': post.title,
+                 'created': post.created.strftime('%Y-%m-%d %H:%M:%S'),
+                 'author': post.author.username}
+                for post in row.posts.all()]
+
+    def get_is_leaf(self, row):
+        return row.isLeaf()
+
+
 
 class PostSerializer(ModelSerializer):
     author_display = serializers.SerializerMethodField()
@@ -72,24 +73,6 @@ class PostSerializer(ModelSerializer):
     category_display = serializers.SerializerMethodField()
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     excerpt = serializers.SerializerMethodField()
-
-    def get_category_display(self, row):
-        if row.category is not None:
-            return {'id': row.category.id, 'name': row.category.name}
-        return {}
-
-    def get_tags_display(self, row):
-        return ({'id': tag.id, 'name': tag.name} for tag in row.tags.all())
-
-    def get_author_display(self, row):
-        return {'id': row.author.id, 'username': row.author.username}
-
-    def get_excerpt(self, row):
-        return row.excerpt()
-
-    def validate(self, data):
-        data = validators.ownerTag(data)
-        return data
 
     class Meta:
         model = models.Post
@@ -108,3 +91,21 @@ class PostSerializer(ModelSerializer):
             'category_display': {'read_only': True},
             'author_display': {'read_only': True},
         }
+
+    def validate(self, data):
+        data = validators.ownerTag(data)
+        return data
+
+    def get_category_display(self, row):
+        if row.category is not None:
+            return {'id': row.category.id, 'name': row.category.name}
+        return {}
+
+    def get_tags_display(self, row):
+        return ({'id': tag.id, 'name': tag.name} for tag in row.tags.all())
+
+    def get_author_display(self, row):
+        return {'id': row.author.id, 'username': row.author.username}
+
+    def get_excerpt(self, row):
+        return row.excerpt()

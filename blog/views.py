@@ -27,7 +27,7 @@ class PostViewSet(
         GenericViewSet):
     permission_classes = []
     serializer_class = PostSerializer
-    queryset = models.Post.objects.filter(is_public=True)
+    queryset = models.Post.objects.select_related('category', 'author', ).prefetch_related('tags').filter(is_public=True)
     pagination_class = pagination.PostPagination
 
     filterset_fields = ['tags', 'category']
@@ -48,7 +48,7 @@ class TagViewSet(
         GenericViewSet):
     permission_classes = [permissions.IsOwnerOrReadOnly, ]
     serializer_class = TagSerializer
-    queryset = models.Tag.objects.all()
+    queryset = models.Tag.objects.select_related('owner').prefetch_related('posts')
     pagination_class = pagination.Pagination
 
     filter_backends = [filters.filters.DjangoFilterBackend,
@@ -70,7 +70,7 @@ class CategoryViewSet(
         GenericViewSet):
     permission_classes = []
     serializer_class = CategorySerializer
-    queryset = models.Category.objects.all()
+    queryset = models.Category.objects.select_related('owner', 'parent').prefetch_related('posts', 'children')
     pagination_class = pagination.Pagination
 
     filter_backends = [filters.filters.DjangoFilterBackend,
