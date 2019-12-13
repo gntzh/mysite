@@ -45,6 +45,8 @@ class Album(models.Model):
     owner = models.ForeignKey(
         User, models.CASCADE, related_query_name='img_album', related_name='img_albums', verbose_name='创建者')
     created = models.DateField('创建时间', auto_now_add=True)
+    description = models.CharField(
+        '描述', max_length=128, blank=True, null=True, default=None)
 
     class Meta:
         verbose_name = '相册'

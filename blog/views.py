@@ -25,18 +25,19 @@ class PostViewSet(
         mixins.UpdateModelMixin,
         mixins.DestroyModelMixin,
         GenericViewSet):
-    permission_classes = []
+    permission_classes = (permissions.IsOwnerOrReadOnly, )
     serializer_class = PostSerializer
-    queryset = models.Post.objects.select_related('category', 'author', ).prefetch_related('tags').filter(is_public=True)
+    queryset = models.Post.objects.select_related(
+        'category', 'author', ).prefetch_related('tags').filter(is_public=True)
     pagination_class = pagination.PostPagination
 
-    filterset_fields = ['tags', 'category']
-    search_fields = ['title', 'content']
-    ordering_fields = ['created', 'updated']
+    filterset_fields = ('tags', 'category', )
+    search_fields = ('title', 'content', )
+    ordering_fields = ('created', 'updated', )
     ordering = 'created'
 
-    many_excluded = ('content', 'is_public',)
-    one_excluded = ('excerpt', 'is_public',)
+    many_excluded = ('content', 'is_public', )
+    one_excluded = ('excerpt', 'is_public', )
 
 
 class TagViewSet(
@@ -46,16 +47,17 @@ class TagViewSet(
         mixins.DestroyModelMixin,
         ListModelMixin,
         GenericViewSet):
-    permission_classes = [permissions.IsOwnerOrReadOnly, ]
+    permission_classes = (permissions.IsOwnerOrReadOnly, )
     serializer_class = TagSerializer
-    queryset = models.Tag.objects.select_related('owner').prefetch_related('posts')
+    queryset = models.Tag.objects.select_related(
+        'owner').prefetch_related('posts')
     pagination_class = pagination.Pagination
 
     filter_backends = [filters.filters.DjangoFilterBackend,
                        filters.drf_filters.SearchFilter, filters.drf_filters.OrderingFilter]
-    filterset_fields = ['id', 'name', 'owner', ]
-    search_fields = ['name', 'owner']
-    ordering_fields = ['owner', ]
+    filterset_fields = ('id', 'name', 'owner', )
+    search_fields = ('name', )
+    ordering_fields = ('owner', )
     ordering = 'id'
 
     many_excluded = ('posts',)
@@ -68,17 +70,18 @@ class CategoryViewSet(
         mixins.DestroyModelMixin,
         ListModelMixin,
         GenericViewSet):
-    permission_classes = []
+    permission_classes = (permissions.IsOwnerOrReadOnly, )
     serializer_class = CategorySerializer
-    queryset = models.Category.objects.select_related('owner', 'parent').prefetch_related('posts', 'children')
+    queryset = models.Category.objects.select_related(
+        'owner', 'parent').prefetch_related('posts', 'children')
     pagination_class = pagination.Pagination
 
     filter_backends = [filters.filters.DjangoFilterBackend,
                        filters.drf_filters.SearchFilter,
                        filters.drf_filters.OrderingFilter]
     filterset_class = filters.CategoryFilter
-    search_fields = ['name', 'owner']
-    ordering_fields = ['posts', 'post_num']
+    search_fields = ('name',)
+    ordering_fields = ('posts', 'post_num')
     ordering = 'id'
 
     many_excluded = ('posts', 'children')
@@ -86,11 +89,11 @@ class CategoryViewSet(
 
 
 class OneManPostList(mixins.ListModelMixin, GenericViewSet):
-    permission_classes = [permissions.UserExist, ]
+    permission_classes = (permissions.UserExist, )
     serializer_class = PostSerializer
-    filterset_fields = ['tags', 'category']
-    search_fields = ['title', 'content']
-    ordering_fields = ['created', 'updated']
+    filterset_fields = ('tags', 'category',)
+    search_fields = ('title', 'content')
+    ordering_fields = ('created', 'updated',)
     ordering = 'created'
     pagination_class = pagination.PostPagination
 

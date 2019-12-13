@@ -20,8 +20,9 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("api-user/", include("user.urls")),
-    path("api-blog/", include("blog.urls"))
+    path('api-user/', include('user.urls')),
+    path('api-blog/', include('blog.urls')),
+    path('api-picture/', include('picture.urls')),
 ]
 if settings.DEBUG:
     import debug_toolbar
