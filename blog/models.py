@@ -30,16 +30,18 @@ class Category(models.Model):
                                related_query_name='child', related_name='children', verbose_name='父级分类')
 
     def validate_unique(self, exclude=None):
-        if self.parent is None and Category.objects.exclude(id=self.id).filter(name=self.name, owner=self.owner,
-                                                                               parent__isnull=True).exists():
-            raise ValidationError('字段 owner, name, parent 必须能构成唯一集合。')
+        try:
+            if self.parent is None and Category.objects.exclude(id=self.id).filter(name=self.name, owner=self.owner,
+                                                                                   parent__isnull=True).exists():
+                raise ValidationError('字段 owner, name, parent 必须能构成唯一集合。')
+        except AttributeError:
+            pass
         super(Category, self).validate_unique(exclude)
 
     def clean(self):
         if self.parent == self:
             raise ValidationError('不允许将父级分类设为自己')
         parent_owner = getattr(self.parent, 'owner', None)
-        print(parent_owner)
         if parent_owner is not None and parent_owner != self.owner:
             raise ValidationError('不允许关联他人的分类')
         super(Category, self).clean()
