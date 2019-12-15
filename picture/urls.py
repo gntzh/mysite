@@ -1,12 +1,12 @@
 from django.urls import path, include
 from rest_framework import routers
-from . import views
+from .views import TPImageViewSet, HostingViewSet, AlbumViewSet
 
 app_name = 'picture'
 router = routers.DefaultRouter()
-router.register(r'tp_images', views.TPImageViewSet)
-router.register(r'hostings', views.HostingViewSet)
-# router.register(r'tags', views.TagViewSet)
+router.register(r'tp_images', TPImageViewSet)
+router.register(r'hostings', HostingViewSet)
+router.register(r'albums', AlbumViewSet)
 
 urlpatterns = [
     path(r'', include(router.urls)),

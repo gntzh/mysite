@@ -1,4 +1,6 @@
 from rest_framework import mixins as drf
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 
 class RetrieveModelMixin:
@@ -27,3 +29,23 @@ class ListModelMixin:
 
         serializer = self.get_serializer(queryset, many=True, excluded=excluded)
         return drf.Response(serializer.data)
+
+
+class ExistsModelMixin:
+    """
+    由查询条件判断实例是否存在
+    存在返回True, 不存在就创建(POST)
+    """
+    @action(detail=False, methods=['GET', 'POST', ], url_path='exists', url_name='exists', permission_classes=[IsAuthenticatedOrReadOnly, ])
+    def exists(self, request, *args, **kwargs):
+        """
+        由查询条件判断实例是否存在
+        存在返回True, 不存在就创建(POST)
+        """
+        exists = self.filter_queryset(self.get_queryset()).exists()
+        if request.method == 'GET':
+            return drf.Response({'exists': exists})
+        else:
+            if exists:
+                return drf.Response({'exists': True})
+            return self.create(request, *args, **kwargs)

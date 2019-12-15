@@ -21,7 +21,7 @@ class TPImageViewSet(
 
     filter_backends = [filters.filters.DjangoFilterBackend,
                        filters.drf_filters.SearchFilter, filters.drf_filters.OrderingFilter]
-    filterset_fields = ['id', 'description', 'owner', ]
+    filterset_fields = ('id', 'description', 'owner', )
     search_fields = ('description', )
     ordering_fields = ['owner', ]
     ordering = '-created'
@@ -56,7 +56,7 @@ class AlbumViewSet(
         GenericViewSet):
     permission_classes = []
     serializer_class = AlbumSerializer
-    queryset = models.Hosting.objects.select_related('owner')
+    queryset = models.Album.objects.select_related('owner')
     # pagination_class = pagination.Pagination
 
     filter_backends = [filters.filters.DjangoFilterBackend,

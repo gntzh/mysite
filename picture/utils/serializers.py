@@ -4,6 +4,7 @@ from .. import models
 
 
 class TPImageSerializer(serializers.ModelSerializer):
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = models.ThirdPartyImage
@@ -12,6 +13,7 @@ class TPImageSerializer(serializers.ModelSerializer):
 
 
 class HostingSerializer(serializers.ModelSerializer):
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = models.Hosting
@@ -20,6 +22,7 @@ class HostingSerializer(serializers.ModelSerializer):
 
 
 class AlbumSerializer(serializers.ModelSerializer):
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = models.Album

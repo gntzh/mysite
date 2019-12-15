@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 
-from utils.rest.mixins import drf as mixins, ListModelMixin, RetrieveModelMixin
+from utils.rest.mixins import drf as mixins, ListModelMixin, RetrieveModelMixin, ExistsModelMixin
 
 from .utils.serializers import PostSerializer, TagSerializer, CategorySerializer
 from .utils import pagination, permissions, filters
@@ -46,6 +46,7 @@ class TagViewSet(
         mixins.UpdateModelMixin,
         mixins.DestroyModelMixin,
         ListModelMixin,
+        ExistsModelMixin,
         GenericViewSet):
     permission_classes = (permissions.IsOwnerOrReadOnly, )
     serializer_class = TagSerializer
