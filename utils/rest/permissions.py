@@ -7,7 +7,7 @@ def isOwnerOrReadOnly(field='owner'):
     def foo(self, request, view, obj):
         if request.method in drf.SAFE_METHODS:
             return True
-        return eval('obj.%s == request.user' % field)
+        return bool(request.user and request.user.is_authenticated and eval('obj.%s == request.user' % field))
     return type('IsOwnerOrReadOnly', (drf.BasePermission, ), {'has_object_permission': foo})
 
 
@@ -22,6 +22,5 @@ class IsOwnerOrReadOnly(drf.BasePermission):
         # so we'll always allow GET, HEAD or OPTIONS requests.
         if request.method in drf.SAFE_METHODS:
             return True
-
         # Instance must have an attribute named `owner`.
         return obj.owner == request.user

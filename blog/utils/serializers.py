@@ -1,5 +1,5 @@
 from utils.rest.serializers import drf as serializers, ModelSerializer
-
+from utils.rest.validators import RelatedToOwnValidator
 from .. import models
 from . import validators
 
@@ -66,7 +66,6 @@ class CategorySerializer(ModelSerializer):
         return row.isLeaf()
 
 
-
 class PostSerializer(ModelSerializer):
     author_display = serializers.SerializerMethodField()
     tags_display = serializers.SerializerMethodField()
@@ -79,12 +78,10 @@ class PostSerializer(ModelSerializer):
         fields = ['id', 'title', 'author', 'author_display', 'is_public', 'allow_comments', 'created',
                   'updated', 'tags', 'tags_display', 'category', 'category_display', 'excerpt', 'content', 'vote']
         extra_kwargs = {
-            # 'title': {'required': False,},
-            # 'content': {'requiresd': False, },
             'created': {'read_only': True, 'format': '%Y-%m-%d %H:%M:%S'},
             'updated': {'read_only': True, 'format': '%Y-%m-%d %H:%M:%S'},
-            'tags': {'write_only': True},
-            'category': {'write_only': True},
+            'tags': {'write_only': True, 'validators': [RelatedToOwnValidator(True, 'author'), ]},
+            'category': {'write_only': True, 'validators': [RelatedToOwnValidator(False, 'author'), ]},
             'vote': {'read_only': True},
             'is_public': {'default': True},
             'tags_display': {'read_only': True},
@@ -93,7 +90,7 @@ class PostSerializer(ModelSerializer):
         }
 
     def validate(self, data):
-        data = validators.ownerTag(data)
+        RelatedToOwn(True, 'author')(data['tags'], self.fields['tags'])
         return data
 
     def get_category_display(self, row):

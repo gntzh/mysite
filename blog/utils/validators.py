@@ -16,8 +16,6 @@ def validateParent(data):
         return data
     if parent.id == id:
         raise ValidationError('不允许关联分类本身')
-    if parent.owner != data['owner']:
-        raise ValidationError('不允许关联他人的分类')
     return data
 
 
@@ -29,11 +27,4 @@ def uniqueCate(data):
         queryset.exclude(id=data.id)
     if data['parent'] is None and qs_exists(queryset):
         raise ValidationError('字段 owner, name, parent 必须能构成唯一集合。')
-    return data
-
-
-def ownerTag(data):
-    for tag in data['tags']:
-        if data['author'] != tag.owner:
-            raise ValidationError('不允许关联他人分类')
     return data

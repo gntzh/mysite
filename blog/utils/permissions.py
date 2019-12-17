@@ -5,35 +5,6 @@ User = get_user_model()
 
 OWNER_METHODS = ['PUT', 'PATCH', 'DELETE']
 
-class IsOwnerOrReadOnly(BasePermission):
-    def has_permission(self, request, view):
-        if request.method in SAFE_METHODS:
-            return True
-        if request.method == 'POST':
-            return IsAuthenticated().has_permission(request, view)
-        return True
-
-    def has_object_permission(self, request, view, obj):
-        if request.method in SAFE_METHODS:
-            return True
-        try:
-            user = obj.author
-            return bool(
-                request.user and
-                request.user.is_authenticated and
-                request.user == obj.author
-            )
-        except:
-            try:
-                user = obj.owner
-                return bool(
-                    request.user and
-                    request.user.is_authenticated and
-                    request.user == obj.owner
-                )
-            except:
-                return False
-
 
 class UserExist(BasePermission):
     def has_permission(self, request, view):
