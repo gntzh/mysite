@@ -14,7 +14,7 @@ from utils.rest.mixins import drf as mixins, ListModelMixin, RetrieveModelMixin,
 from utils.rest.permissions import drf as permissions, isOwnerOrReadOnly
 
 from .utils.serializers import PostSerializer, TagSerializer, CategorySerializer
-from .utils import pagination, permissions, filters
+from .utils import pagination, filters
 
 User = get_user_model()
 
@@ -29,7 +29,7 @@ class PostViewSet(
     permission_classes = (isOwnerOrReadOnly('author'), )
     serializer_class = PostSerializer
     queryset = models.Post.objects.select_related(
-        'category', 'category__parent','author', ).prefetch_related('tags').filter(is_public=True)
+        'category', 'category__parent', 'author', ).prefetch_related('tags').filter(is_public=True)
     pagination_class = pagination.PostPagination
 
     filterset_fields = ('tags', 'category', )
@@ -88,19 +88,3 @@ class CategoryViewSet(
 
     many_excluded = ('posts', 'children')
     one_excluded = ('is_leaf',)
-
-
-class OneManPostList(mixins.ListModelMixin, GenericViewSet):
-    permission_classes = (permissions.UserExist, )
-    serializer_class = PostSerializer
-    filterset_fields = ('tags', 'category',)
-    search_fields = ('title', 'content')
-    ordering_fields = ('created', 'updated',)
-    ordering = 'created'
-    pagination_class = pagination.PostPagination
-
-    def get_queryset(self):
-        pk = int(self.request.path.strip('/').split('/')[-1])
-        if self.request.user and self.request.user.is_authenticated:
-            return models.Post.objects.filter(author=pk)
-        return models.Post.objects.filter(author=pk, is_public=True)

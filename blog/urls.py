@@ -1,16 +1,14 @@
 from django.urls import path, include
 from rest_framework import routers
-from . import views
+from .views import PostViewSet, CategoryViewSet, TagViewSet
 
 
 app_name = 'blog'
 router = routers.DefaultRouter()
-router.register(r'posts', views.PostViewSet)
-router.register(r'categories', views.CategoryViewSet)
-router.register(r'tags', views.TagViewSet)
+router.register(r'posts', PostViewSet)
+router.register(r'categories', CategoryViewSet)
+router.register(r'tags', TagViewSet)
 
 urlpatterns = [
     path(r'', include(router.urls)),
-    path('one_man_posts/<int:pk>/',
-         views.OneManPostList.as_view({'get': 'list'})),
 ]
