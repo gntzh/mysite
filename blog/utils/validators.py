@@ -1,5 +1,5 @@
-from rest_framework.validators import ValidationError, UniqueTogetherValidator, qs_exists
-from .. import models
+from rest_framework.validators import ValidationError, qs_exists
+from ..models import Post, Tag, Category
 
 
 def createOrUpdate(data):
@@ -21,7 +21,7 @@ def validateParent(data):
 
 def uniqueCate(data):
     id = createOrUpdate(data)
-    queryset = models.Category.objects.filter(
+    queryset = Category.objects.filter(
         name=data['name'], owner=data['owner'], parent__isnull=True)
     if(id):
         queryset.exclude(id=data.id)

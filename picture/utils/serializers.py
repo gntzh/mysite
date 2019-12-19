@@ -1,13 +1,13 @@
 from utils.rest.serializers import drf as serializers
 
-from .. import models
+from ..models import Album, ThirdPartyImage, Hosting
 
 
 class TPImageSerializer(serializers.ModelSerializer):
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
-        model = models.ThirdPartyImage
+        model = ThirdPartyImage
         fields = '__all__'
         extra_kwargs = {}
 
@@ -16,7 +16,7 @@ class HostingSerializer(serializers.ModelSerializer):
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
-        model = models.Hosting
+        model = Hosting
         fields = '__all__'
         extra_kwargs = {}
 
@@ -25,6 +25,6 @@ class AlbumSerializer(serializers.ModelSerializer):
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
-        model = models.Album
+        model = Album
         fields = '__all__'
         extra_kwargs = {}

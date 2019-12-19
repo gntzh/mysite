@@ -1,6 +1,6 @@
 from utils.rest.serializers import drf as serializers, ModelSerializer
-from utils.rest.validators import RelatedToOwnValidator
-from .. import models
+from utils.rest.validators import RelatedToOwnValidator, UniqueTogetherValidator
+from ..models import Post, Tag, Category
 from . import validators
 
 
@@ -10,7 +10,7 @@ class TagSerializer(ModelSerializer):
     posts = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.Tag
+        model = Tag
         fields = ['id', 'name', 'owner', 'post_num', 'posts']
         extra_kwargs = {}
 
@@ -33,14 +33,14 @@ class CategorySerializer(ModelSerializer):
     is_leaf = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.Category
+        model = Category
         fields = ['id', 'name', 'parent', 'children',
                   'owner', 'post_num', 'posts', 'is_leaf']
         extra_kwargs = {
             'parent': {'required': False, 'default': None}
         }
-        validators = [validators.UniqueTogetherValidator(
-            models.Category.objects.all(), ['name', 'parent', 'owner'])]
+        validators = [UniqueTogetherValidator(
+            Category.objects.all(), ['name', 'parent', 'owner'])]
 
     def validate(self, data):
         data = validators.uniqueCate(data)
@@ -74,7 +74,7 @@ class PostSerializer(ModelSerializer):
     excerpt = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.Post
+        model = Post
         fields = ['id', 'title', 'author', 'author_display', 'is_public', 'allow_comments', 'created',
                   'updated', 'tags', 'tags_display', 'category', 'category_display', 'excerpt', 'content', 'vote']
         extra_kwargs = {

@@ -2,9 +2,9 @@ from rest_framework.viewsets import GenericViewSet
 
 from utils.rest.mixins import drf as mixins
 
-from . import models
+from .models import Album, ThirdPartyImage, Hosting
 from .utils.serializers import TPImageSerializer, HostingSerializer, AlbumSerializer
-from .utils import permissions, filters
+from .utils import filters
 
 
 class TPImageViewSet(
@@ -16,7 +16,8 @@ class TPImageViewSet(
         GenericViewSet):
     permission_classes = []
     serializer_class = TPImageSerializer
-    queryset = models.ThirdPartyImage.objects.select_related('owner', 'album').prefetch_related('hostings')
+    queryset = ThirdPartyImage.objects.select_related(
+        'owner', 'album').prefetch_related('hostings')
     # pagination_class = pagination.Pagination
 
     filter_backends = [filters.filters.DjangoFilterBackend,
@@ -38,10 +39,11 @@ class HostingViewSet(
         GenericViewSet):
     permission_classes = []
     serializer_class = HostingSerializer
-    queryset = models.Hosting.objects.select_related('owner', 'image')
+    queryset = Hosting.objects.select_related('owner', 'image')
     # pagination_class = pagination.Pagination
 
-    filter_backends = (filters.filters.DjangoFilterBackend, filters.drf_filters.OrderingFilter, )
+    filter_backends = (filters.filters.DjangoFilterBackend,
+                       filters.drf_filters.OrderingFilter, )
     filterset_fields = ('id', 'owner', )
     ordering_fields = ('owner', )
     ordering = '-id'
@@ -56,7 +58,7 @@ class AlbumViewSet(
         GenericViewSet):
     permission_classes = []
     serializer_class = AlbumSerializer
-    queryset = models.Album.objects.select_related('owner')
+    queryset = Album.objects.select_related('owner')
     # pagination_class = pagination.Pagination
 
     filter_backends = [filters.filters.DjangoFilterBackend,

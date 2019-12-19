@@ -1,22 +1,16 @@
-from . import models
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.query import QuerySet
+from .models import Post, Tag, Category
 # django rest framework
-from rest_framework.views import APIView, Response, Request
+# from rest_framework.views import APIView, Response, Request
 from rest_framework.viewsets import GenericViewSet, ViewSet
-from rest_framework import decorators
+from rest_framework.decorators import action
 from rest_framework import status
-from rest_framework.decorators import api_view
 from rest_framework.reverse import reverse
 
 from utils.rest.mixins import drf as mixins, ListModelMixin, RetrieveModelMixin, ExistsModelMixin
-from utils.rest.permissions import drf as permissions, isOwnerOrReadOnly
+from utils.rest.permissions import isOwnerOrReadOnly
 
 from .utils.serializers import PostSerializer, TagSerializer, CategorySerializer
 from .utils import pagination, filters
-
-User = get_user_model()
 
 
 class PostViewSet(
@@ -28,7 +22,7 @@ class PostViewSet(
         GenericViewSet):
     permission_classes = (isOwnerOrReadOnly('author'), )
     serializer_class = PostSerializer
-    queryset = models.Post.objects.select_related(
+    queryset = Post.objects.select_related(
         'category', 'category__parent', 'author', ).prefetch_related('tags').filter(is_public=True)
     pagination_class = pagination.PostPagination
 
@@ -51,7 +45,7 @@ class TagViewSet(
         GenericViewSet):
     permission_classes = (isOwnerOrReadOnly(), )
     serializer_class = TagSerializer
-    queryset = models.Tag.objects.select_related(
+    queryset = Tag.objects.select_related(
         'owner').prefetch_related('posts')
     pagination_class = pagination.Pagination
 
@@ -74,7 +68,7 @@ class CategoryViewSet(
         GenericViewSet):
     permission_classes = (isOwnerOrReadOnly(), )
     serializer_class = CategorySerializer
-    queryset = models.Category.objects.select_related(
+    queryset = Category.objects.select_related(
         'owner', 'parent').prefetch_related('posts', 'children')
     pagination_class = pagination.Pagination
 
