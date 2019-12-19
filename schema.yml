@@ -1,0 +1,3478 @@
+openapi: 3.0.2
+info:
+  title: ''
+  version: ''
+paths:
+  /api-user/users/:
+    get:
+      operationId: listUsers
+      description: ''
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                          readOnly: true
+                        username:
+                          type: string
+                          description: "\u5FC5\u586B\u3002150\u4E2A\u5B57\u7B26\u6216\
+                            \u8005\u66F4\u5C11\u3002\u5305\u542B\u5B57\u6BCD\uFF0C\
+                            \u6570\u5B57\u548C\u4EC5\u6709\u7684@/./+/-/_\u7B26\u53F7\
+                            \u3002"
+                          pattern: ^[\w.@+-]+$
+                          maxLength: 150
+                        email:
+                          type: string
+                          format: email
+                          maxLength: 254
+                        email_is_active:
+                          type: boolean
+                          readOnly: true
+                        nickname:
+                          type: string
+                          maxLength: 32
+                        last_login:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        logo:
+                          type: string
+                          format: uri
+                          description: "\u4E00\u4E2AURL"
+                          maxLength: 200
+                          pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\\
+                            s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\\
+                            .(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\\
+                            .]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                            -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                            .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                            .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                        phone:
+                          type: string
+                          maxLength: 11
+                      required:
+                      - username
+                      - email
+          description: ''
+    post:
+      operationId: createUser
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id001
+              properties:
+                username:
+                  type: string
+                  description: "\u5FC5\u586B\u3002150\u4E2A\u5B57\u7B26\u6216\u8005\
+                    \u66F4\u5C11\u3002\u5305\u542B\u5B57\u6BCD\uFF0C\u6570\u5B57\u548C\
+                    \u4EC5\u6709\u7684@/./+/-/_\u7B26\u53F7\u3002"
+                  pattern: ^[\w.@+-]+$
+                  maxLength: 150
+                password:
+                  type: string
+                  writeOnly: true
+                  description: "\u5FC5\u586B"
+                  maxLength: 128
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                nickname:
+                  type: string
+                  maxLength: 32
+                logo:
+                  type: string
+                  format: uri
+                  description: "\u4E00\u4E2AURL"
+                  maxLength: 200
+                  pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                    d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                    [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                    -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\xA1\
+                    -\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\\
+                    d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                phone:
+                  type: string
+                  maxLength: 11
+              required:
+              - username
+              - password
+              - email
+          application/x-www-form-urlencoded:
+            schema: *id001
+          multipart/form-data:
+            schema: *id001
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  username:
+                    type: string
+                    description: "\u5FC5\u586B\u3002150\u4E2A\u5B57\u7B26\u6216\u8005\
+                      \u66F4\u5C11\u3002\u5305\u542B\u5B57\u6BCD\uFF0C\u6570\u5B57\
+                      \u548C\u4EC5\u6709\u7684@/./+/-/_\u7B26\u53F7\u3002"
+                    pattern: ^[\w.@+-]+$
+                    maxLength: 150
+                  email:
+                    type: string
+                    format: email
+                    maxLength: 254
+                  email_is_active:
+                    type: boolean
+                    readOnly: true
+                  nickname:
+                    type: string
+                    maxLength: 32
+                  last_login:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  logo:
+                    type: string
+                    format: uri
+                    description: "\u4E00\u4E2AURL"
+                    maxLength: 200
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  phone:
+                    type: string
+                    maxLength: 11
+                required:
+                - username
+                - email
+          description: ''
+  /api-user/users/{id}/:
+    get:
+      operationId: retrieveUser
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u7528\u6237."
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  username:
+                    type: string
+                    description: "\u5FC5\u586B\u3002150\u4E2A\u5B57\u7B26\u6216\u8005\
+                      \u66F4\u5C11\u3002\u5305\u542B\u5B57\u6BCD\uFF0C\u6570\u5B57\
+                      \u548C\u4EC5\u6709\u7684@/./+/-/_\u7B26\u53F7\u3002"
+                    pattern: ^[\w.@+-]+$
+                    maxLength: 150
+                  email:
+                    type: string
+                    format: email
+                    maxLength: 254
+                  email_is_active:
+                    type: boolean
+                    readOnly: true
+                  nickname:
+                    type: string
+                    maxLength: 32
+                  last_login:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  logo:
+                    type: string
+                    format: uri
+                    description: "\u4E00\u4E2AURL"
+                    maxLength: 200
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  phone:
+                    type: string
+                    maxLength: 11
+                required:
+                - username
+                - email
+          description: ''
+    put:
+      operationId: updateUser
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u7528\u6237."
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id002
+              properties:
+                username:
+                  type: string
+                  description: "\u5FC5\u586B\u3002150\u4E2A\u5B57\u7B26\u6216\u8005\
+                    \u66F4\u5C11\u3002\u5305\u542B\u5B57\u6BCD\uFF0C\u6570\u5B57\u548C\
+                    \u4EC5\u6709\u7684@/./+/-/_\u7B26\u53F7\u3002"
+                  pattern: ^[\w.@+-]+$
+                  maxLength: 150
+                password:
+                  type: string
+                  maxLength: 128
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                nickname:
+                  type: string
+                  maxLength: 32
+                logo:
+                  type: string
+                  format: uri
+                  maxLength: 200
+                  pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                    d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                    [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                    -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\xA1\
+                    -\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\\
+                    d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                phone:
+                  type: string
+                  maxLength: 11
+                old_password:
+                  type: string
+              required:
+              - username
+          application/x-www-form-urlencoded:
+            schema: *id002
+          multipart/form-data:
+            schema: *id002
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  username:
+                    type: string
+                    description: "\u5FC5\u586B\u3002150\u4E2A\u5B57\u7B26\u6216\u8005\
+                      \u66F4\u5C11\u3002\u5305\u542B\u5B57\u6BCD\uFF0C\u6570\u5B57\
+                      \u548C\u4EC5\u6709\u7684@/./+/-/_\u7B26\u53F7\u3002"
+                    pattern: ^[\w.@+-]+$
+                    maxLength: 150
+                  password:
+                    type: string
+                    maxLength: 128
+                  email:
+                    type: string
+                    format: email
+                    maxLength: 254
+                  nickname:
+                    type: string
+                    maxLength: 32
+                  logo:
+                    type: string
+                    format: uri
+                    maxLength: 200
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  phone:
+                    type: string
+                    maxLength: 11
+                  old_password:
+                    type: string
+                required:
+                - username
+          description: ''
+    patch:
+      operationId: partial_updateUser
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u7528\u6237."
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id003
+              properties:
+                username:
+                  type: string
+                  description: "\u5FC5\u586B\u3002150\u4E2A\u5B57\u7B26\u6216\u8005\
+                    \u66F4\u5C11\u3002\u5305\u542B\u5B57\u6BCD\uFF0C\u6570\u5B57\u548C\
+                    \u4EC5\u6709\u7684@/./+/-/_\u7B26\u53F7\u3002"
+                  pattern: ^[\w.@+-]+$
+                  maxLength: 150
+                password:
+                  type: string
+                  maxLength: 128
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                nickname:
+                  type: string
+                  maxLength: 32
+                logo:
+                  type: string
+                  format: uri
+                  maxLength: 200
+                  pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                    d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                    [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                    -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\xA1\
+                    -\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\\
+                    d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                phone:
+                  type: string
+                  maxLength: 11
+                old_password:
+                  type: string
+          application/x-www-form-urlencoded:
+            schema: *id003
+          multipart/form-data:
+            schema: *id003
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  username:
+                    type: string
+                    description: "\u5FC5\u586B\u3002150\u4E2A\u5B57\u7B26\u6216\u8005\
+                      \u66F4\u5C11\u3002\u5305\u542B\u5B57\u6BCD\uFF0C\u6570\u5B57\
+                      \u548C\u4EC5\u6709\u7684@/./+/-/_\u7B26\u53F7\u3002"
+                    pattern: ^[\w.@+-]+$
+                    maxLength: 150
+                  password:
+                    type: string
+                    maxLength: 128
+                  email:
+                    type: string
+                    format: email
+                    maxLength: 254
+                  nickname:
+                    type: string
+                    maxLength: 32
+                  logo:
+                    type: string
+                    format: uri
+                    maxLength: 200
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  phone:
+                    type: string
+                    maxLength: 11
+                  old_password:
+                    type: string
+                required:
+                - username
+          description: ''
+    delete:
+      operationId: destroyUser
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u7528\u6237."
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api-user/verify_email/:
+    get:
+      operationId: checkVerifyEmailUrlVerifyEmailViewSet
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+    post:
+      operationId: sendVerifyEmailVerifyEmailViewSet
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+  /api-blog/posts/:
+    get:
+      operationId: listPosts
+      description: ''
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: tags
+        required: false
+        in: query
+        description: tags
+        schema:
+          type: string
+      - name: category
+        required: false
+        in: query
+        description: category
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                          readOnly: true
+                        title:
+                          type: string
+                          maxLength: 64
+                        author_display:
+                          type: string
+                          readOnly: true
+                        is_public:
+                          type: boolean
+                          default: true
+                        allow_comments:
+                          type: boolean
+                        created:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        updated:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        tags_display:
+                          type: string
+                          readOnly: true
+                        category_display:
+                          type: string
+                          readOnly: true
+                        excerpt:
+                          type: string
+                          readOnly: true
+                        content:
+                          type: string
+                        vote:
+                          type: integer
+                          readOnly: true
+          description: ''
+    post:
+      operationId: createPost
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id004
+              properties:
+                title:
+                  type: string
+                  maxLength: 64
+                is_public:
+                  type: boolean
+                  default: true
+                allow_comments:
+                  type: boolean
+                tags:
+                  type: array
+                  items:
+                    type: integer
+                  writeOnly: true
+                category:
+                  type: integer
+                  writeOnly: true
+                  nullable: true
+                content:
+                  type: string
+          application/x-www-form-urlencoded:
+            schema: *id004
+          multipart/form-data:
+            schema: *id004
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  title:
+                    type: string
+                    maxLength: 64
+                  author_display:
+                    type: string
+                    readOnly: true
+                  is_public:
+                    type: boolean
+                    default: true
+                  allow_comments:
+                    type: boolean
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  updated:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  tags_display:
+                    type: string
+                    readOnly: true
+                  category_display:
+                    type: string
+                    readOnly: true
+                  excerpt:
+                    type: string
+                    readOnly: true
+                  content:
+                    type: string
+                  vote:
+                    type: integer
+                    readOnly: true
+          description: ''
+  /api-blog/posts/{id}/:
+    get:
+      operationId: retrievePost
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u535A\u6587."
+        schema:
+          type: string
+      - name: tags
+        required: false
+        in: query
+        description: tags
+        schema:
+          type: string
+      - name: category
+        required: false
+        in: query
+        description: category
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  title:
+                    type: string
+                    maxLength: 64
+                  author_display:
+                    type: string
+                    readOnly: true
+                  is_public:
+                    type: boolean
+                    default: true
+                  allow_comments:
+                    type: boolean
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  updated:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  tags_display:
+                    type: string
+                    readOnly: true
+                  category_display:
+                    type: string
+                    readOnly: true
+                  excerpt:
+                    type: string
+                    readOnly: true
+                  content:
+                    type: string
+                  vote:
+                    type: integer
+                    readOnly: true
+          description: ''
+    put:
+      operationId: updatePost
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u535A\u6587."
+        schema:
+          type: string
+      - name: tags
+        required: false
+        in: query
+        description: tags
+        schema:
+          type: string
+      - name: category
+        required: false
+        in: query
+        description: category
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id005
+              properties:
+                title:
+                  type: string
+                  maxLength: 64
+                is_public:
+                  type: boolean
+                  default: true
+                allow_comments:
+                  type: boolean
+                tags:
+                  type: array
+                  items:
+                    type: integer
+                  writeOnly: true
+                category:
+                  type: integer
+                  writeOnly: true
+                  nullable: true
+                content:
+                  type: string
+          application/x-www-form-urlencoded:
+            schema: *id005
+          multipart/form-data:
+            schema: *id005
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  title:
+                    type: string
+                    maxLength: 64
+                  author_display:
+                    type: string
+                    readOnly: true
+                  is_public:
+                    type: boolean
+                    default: true
+                  allow_comments:
+                    type: boolean
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  updated:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  tags_display:
+                    type: string
+                    readOnly: true
+                  category_display:
+                    type: string
+                    readOnly: true
+                  excerpt:
+                    type: string
+                    readOnly: true
+                  content:
+                    type: string
+                  vote:
+                    type: integer
+                    readOnly: true
+          description: ''
+    patch:
+      operationId: partial_updatePost
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u535A\u6587."
+        schema:
+          type: string
+      - name: tags
+        required: false
+        in: query
+        description: tags
+        schema:
+          type: string
+      - name: category
+        required: false
+        in: query
+        description: category
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id006
+              properties:
+                title:
+                  type: string
+                  maxLength: 64
+                is_public:
+                  type: boolean
+                  default: true
+                allow_comments:
+                  type: boolean
+                tags:
+                  type: array
+                  items:
+                    type: integer
+                  writeOnly: true
+                category:
+                  type: integer
+                  writeOnly: true
+                  nullable: true
+                content:
+                  type: string
+          application/x-www-form-urlencoded:
+            schema: *id006
+          multipart/form-data:
+            schema: *id006
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  title:
+                    type: string
+                    maxLength: 64
+                  author_display:
+                    type: string
+                    readOnly: true
+                  is_public:
+                    type: boolean
+                    default: true
+                  allow_comments:
+                    type: boolean
+                  created:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  updated:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  tags_display:
+                    type: string
+                    readOnly: true
+                  category_display:
+                    type: string
+                    readOnly: true
+                  excerpt:
+                    type: string
+                    readOnly: true
+                  content:
+                    type: string
+                  vote:
+                    type: integer
+                    readOnly: true
+          description: ''
+    delete:
+      operationId: destroyPost
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u535A\u6587."
+        schema:
+          type: string
+      - name: tags
+        required: false
+        in: query
+        description: tags
+        schema:
+          type: string
+      - name: category
+        required: false
+        in: query
+        description: category
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api-blog/categories/:
+    get:
+      operationId: listCategorys
+      description: ''
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: is_root
+        required: false
+        in: query
+        description: "\u662F\u5426\u9876\u7EA7\u5206\u7C7B"
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: parent
+        required: false
+        in: query
+        description: parent
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                          readOnly: true
+                        name:
+                          type: string
+                          maxLength: 64
+                        parent:
+                          type: integer
+                          nullable: true
+                        children:
+                          type: string
+                          readOnly: true
+                        post_num:
+                          type: string
+                          readOnly: true
+                        posts:
+                          type: string
+                          readOnly: true
+                        is_leaf:
+                          type: string
+                          readOnly: true
+                      required:
+                      - name
+          description: ''
+    post:
+      operationId: createCategory
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id007
+              properties:
+                name:
+                  type: string
+                  maxLength: 64
+                parent:
+                  type: integer
+                  nullable: true
+              required:
+              - name
+          application/x-www-form-urlencoded:
+            schema: *id007
+          multipart/form-data:
+            schema: *id007
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 64
+                  parent:
+                    type: integer
+                    nullable: true
+                  children:
+                    type: string
+                    readOnly: true
+                  post_num:
+                    type: string
+                    readOnly: true
+                  posts:
+                    type: string
+                    readOnly: true
+                  is_leaf:
+                    type: string
+                    readOnly: true
+                required:
+                - name
+          description: ''
+  /api-blog/categories/{id}/:
+    get:
+      operationId: retrieveCategory
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u5206\u7C7B."
+        schema:
+          type: string
+      - name: is_root
+        required: false
+        in: query
+        description: "\u662F\u5426\u9876\u7EA7\u5206\u7C7B"
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: parent
+        required: false
+        in: query
+        description: parent
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 64
+                  parent:
+                    type: integer
+                    nullable: true
+                  children:
+                    type: string
+                    readOnly: true
+                  post_num:
+                    type: string
+                    readOnly: true
+                  posts:
+                    type: string
+                    readOnly: true
+                  is_leaf:
+                    type: string
+                    readOnly: true
+                required:
+                - name
+          description: ''
+    put:
+      operationId: updateCategory
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u5206\u7C7B."
+        schema:
+          type: string
+      - name: is_root
+        required: false
+        in: query
+        description: "\u662F\u5426\u9876\u7EA7\u5206\u7C7B"
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: parent
+        required: false
+        in: query
+        description: parent
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id008
+              properties:
+                name:
+                  type: string
+                  maxLength: 64
+                parent:
+                  type: integer
+                  nullable: true
+              required:
+              - name
+          application/x-www-form-urlencoded:
+            schema: *id008
+          multipart/form-data:
+            schema: *id008
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 64
+                  parent:
+                    type: integer
+                    nullable: true
+                  children:
+                    type: string
+                    readOnly: true
+                  post_num:
+                    type: string
+                    readOnly: true
+                  posts:
+                    type: string
+                    readOnly: true
+                  is_leaf:
+                    type: string
+                    readOnly: true
+                required:
+                - name
+          description: ''
+    patch:
+      operationId: partial_updateCategory
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u5206\u7C7B."
+        schema:
+          type: string
+      - name: is_root
+        required: false
+        in: query
+        description: "\u662F\u5426\u9876\u7EA7\u5206\u7C7B"
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: parent
+        required: false
+        in: query
+        description: parent
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id009
+              properties:
+                name:
+                  type: string
+                  maxLength: 64
+                parent:
+                  type: integer
+                  nullable: true
+          application/x-www-form-urlencoded:
+            schema: *id009
+          multipart/form-data:
+            schema: *id009
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 64
+                  parent:
+                    type: integer
+                    nullable: true
+                  children:
+                    type: string
+                    readOnly: true
+                  post_num:
+                    type: string
+                    readOnly: true
+                  posts:
+                    type: string
+                    readOnly: true
+                  is_leaf:
+                    type: string
+                    readOnly: true
+                required:
+                - name
+          description: ''
+    delete:
+      operationId: destroyCategory
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u5206\u7C7B."
+        schema:
+          type: string
+      - name: is_root
+        required: false
+        in: query
+        description: "\u662F\u5426\u9876\u7EA7\u5206\u7C7B"
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: parent
+        required: false
+        in: query
+        description: parent
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api-blog/tags/:
+    get:
+      operationId: listTags
+      description: ''
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                          readOnly: true
+                        name:
+                          type: string
+                          maxLength: 32
+                        post_num:
+                          type: string
+                          readOnly: true
+                        posts:
+                          type: string
+                          readOnly: true
+                      required:
+                      - name
+          description: ''
+    post:
+      operationId: createTag
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id010
+              properties:
+                name:
+                  type: string
+                  maxLength: 32
+              required:
+              - name
+          application/x-www-form-urlencoded:
+            schema: *id010
+          multipart/form-data:
+            schema: *id010
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 32
+                  post_num:
+                    type: string
+                    readOnly: true
+                  posts:
+                    type: string
+                    readOnly: true
+                required:
+                - name
+          description: ''
+  /api-blog/tags/exists/:
+    get:
+      operationId: existsTag
+      description: "\u7531\u67E5\u8BE2\u6761\u4EF6\u5224\u65AD\u5B9E\u4F8B\u662F\u5426\
+        \u5B58\u5728\n\u5B58\u5728\u8FD4\u56DETrue, \u4E0D\u5B58\u5728\u5C31\u521B\
+        \u5EFA(POST)"
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 32
+                  post_num:
+                    type: string
+                    readOnly: true
+                  posts:
+                    type: string
+                    readOnly: true
+                required:
+                - name
+          description: ''
+    post:
+      operationId: existsTag
+      description: "\u7531\u67E5\u8BE2\u6761\u4EF6\u5224\u65AD\u5B9E\u4F8B\u662F\u5426\
+        \u5B58\u5728\n\u5B58\u5728\u8FD4\u56DETrue, \u4E0D\u5B58\u5728\u5C31\u521B\
+        \u5EFA(POST)"
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id011
+              properties:
+                name:
+                  type: string
+                  maxLength: 32
+              required:
+              - name
+          application/x-www-form-urlencoded:
+            schema: *id011
+          multipart/form-data:
+            schema: *id011
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 32
+                  post_num:
+                    type: string
+                    readOnly: true
+                  posts:
+                    type: string
+                    readOnly: true
+                required:
+                - name
+          description: ''
+  /api-blog/tags/{id}/:
+    get:
+      operationId: retrieveTag
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u6807\u7B7E."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 32
+                  post_num:
+                    type: string
+                    readOnly: true
+                  posts:
+                    type: string
+                    readOnly: true
+                required:
+                - name
+          description: ''
+    put:
+      operationId: updateTag
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u6807\u7B7E."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id012
+              properties:
+                name:
+                  type: string
+                  maxLength: 32
+              required:
+              - name
+          application/x-www-form-urlencoded:
+            schema: *id012
+          multipart/form-data:
+            schema: *id012
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 32
+                  post_num:
+                    type: string
+                    readOnly: true
+                  posts:
+                    type: string
+                    readOnly: true
+                required:
+                - name
+          description: ''
+    patch:
+      operationId: partial_updateTag
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u6807\u7B7E."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id013
+              properties:
+                name:
+                  type: string
+                  maxLength: 32
+          application/x-www-form-urlencoded:
+            schema: *id013
+          multipart/form-data:
+            schema: *id013
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 32
+                  post_num:
+                    type: string
+                    readOnly: true
+                  posts:
+                    type: string
+                    readOnly: true
+                required:
+                - name
+          description: ''
+    delete:
+      operationId: destroyTag
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u6807\u7B7E."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api-blog/one_man_posts/{id}/:
+    get:
+      operationId: listPosts
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                          readOnly: true
+                        title:
+                          type: string
+                          maxLength: 64
+                        author_display:
+                          type: string
+                          readOnly: true
+                        is_public:
+                          type: boolean
+                          default: true
+                        allow_comments:
+                          type: boolean
+                        created:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        updated:
+                          type: string
+                          format: date-time
+                          readOnly: true
+                        tags_display:
+                          type: string
+                          readOnly: true
+                        category_display:
+                          type: string
+                          readOnly: true
+                        excerpt:
+                          type: string
+                          readOnly: true
+                        content:
+                          type: string
+                        vote:
+                          type: integer
+                          readOnly: true
+          description: ''
+  /api-picture/tp_images/:
+    get:
+      operationId: listThirdPartyImages
+      description: ''
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: description
+        required: false
+        in: query
+        description: description
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                          readOnly: true
+                        description:
+                          type: string
+                          nullable: true
+                          maxLength: 128
+                        created:
+                          type: string
+                          format: date
+                          readOnly: true
+                        album:
+                          type: integer
+                          nullable: true
+          description: ''
+    post:
+      operationId: createThirdPartyImage
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id014
+              properties:
+                description:
+                  type: string
+                  nullable: true
+                  maxLength: 128
+                album:
+                  type: integer
+                  nullable: true
+          application/x-www-form-urlencoded:
+            schema: *id014
+          multipart/form-data:
+            schema: *id014
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  description:
+                    type: string
+                    nullable: true
+                    maxLength: 128
+                  created:
+                    type: string
+                    format: date
+                    readOnly: true
+                  album:
+                    type: integer
+                    nullable: true
+          description: ''
+  /api-picture/tp_images/{id}/:
+    get:
+      operationId: retrieveThirdPartyImage
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u7B2C\u4E09\u65B9\u56FE\
+          \u7247."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: description
+        required: false
+        in: query
+        description: description
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  description:
+                    type: string
+                    nullable: true
+                    maxLength: 128
+                  created:
+                    type: string
+                    format: date
+                    readOnly: true
+                  album:
+                    type: integer
+                    nullable: true
+          description: ''
+    put:
+      operationId: updateThirdPartyImage
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u7B2C\u4E09\u65B9\u56FE\
+          \u7247."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: description
+        required: false
+        in: query
+        description: description
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id015
+              properties:
+                description:
+                  type: string
+                  nullable: true
+                  maxLength: 128
+                album:
+                  type: integer
+                  nullable: true
+          application/x-www-form-urlencoded:
+            schema: *id015
+          multipart/form-data:
+            schema: *id015
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  description:
+                    type: string
+                    nullable: true
+                    maxLength: 128
+                  created:
+                    type: string
+                    format: date
+                    readOnly: true
+                  album:
+                    type: integer
+                    nullable: true
+          description: ''
+    patch:
+      operationId: partial_updateThirdPartyImage
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u7B2C\u4E09\u65B9\u56FE\
+          \u7247."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: description
+        required: false
+        in: query
+        description: description
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id016
+              properties:
+                description:
+                  type: string
+                  nullable: true
+                  maxLength: 128
+                album:
+                  type: integer
+                  nullable: true
+          application/x-www-form-urlencoded:
+            schema: *id016
+          multipart/form-data:
+            schema: *id016
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  description:
+                    type: string
+                    nullable: true
+                    maxLength: 128
+                  created:
+                    type: string
+                    format: date
+                    readOnly: true
+                  album:
+                    type: integer
+                    nullable: true
+          description: ''
+    delete:
+      operationId: destroyThirdPartyImage
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u7B2C\u4E09\u65B9\u56FE\
+          \u7247."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: description
+        required: false
+        in: query
+        description: description
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api-picture/hostings/:
+    get:
+      operationId: listHostings
+      description: ''
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                          readOnly: true
+                        url:
+                          type: string
+                          format: uri
+                          maxLength: 256
+                          pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\\
+                            s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\\
+                            .(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\\
+                            .]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                            -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                            .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                            .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                        delete:
+                          type: string
+                          format: uri
+                          nullable: true
+                          maxLength: 256
+                          pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\\
+                            s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(?:\\\
+                            .(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\[[0-9a-f:\\\
+                            .]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                            -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                            .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                            .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                        note:
+                          type: string
+                          nullable: true
+                          maxLength: 256
+                        image:
+                          type: integer
+                      required:
+                      - url
+                      - image
+          description: ''
+    post:
+      operationId: createHosting
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id017
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  maxLength: 256
+                  pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                    d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                    [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                    -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\xA1\
+                    -\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\\
+                    d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                delete:
+                  type: string
+                  format: uri
+                  nullable: true
+                  maxLength: 256
+                  pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                    d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                    [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                    -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\xA1\
+                    -\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\\
+                    d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                note:
+                  type: string
+                  nullable: true
+                  maxLength: 256
+                image:
+                  type: integer
+              required:
+              - url
+              - image
+          application/x-www-form-urlencoded:
+            schema: *id017
+          multipart/form-data:
+            schema: *id017
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  url:
+                    type: string
+                    format: uri
+                    maxLength: 256
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  delete:
+                    type: string
+                    format: uri
+                    nullable: true
+                    maxLength: 256
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  note:
+                    type: string
+                    nullable: true
+                    maxLength: 256
+                  image:
+                    type: integer
+                required:
+                - url
+                - image
+          description: ''
+  /api-picture/hostings/{id}/:
+    get:
+      operationId: retrieveHosting
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u56FE\u5E8A\u94FE\u63A5\
+          ."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  url:
+                    type: string
+                    format: uri
+                    maxLength: 256
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  delete:
+                    type: string
+                    format: uri
+                    nullable: true
+                    maxLength: 256
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  note:
+                    type: string
+                    nullable: true
+                    maxLength: 256
+                  image:
+                    type: integer
+                required:
+                - url
+                - image
+          description: ''
+    put:
+      operationId: updateHosting
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u56FE\u5E8A\u94FE\u63A5\
+          ."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id018
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  maxLength: 256
+                  pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                    d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                    [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                    -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\xA1\
+                    -\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\\
+                    d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                delete:
+                  type: string
+                  format: uri
+                  nullable: true
+                  maxLength: 256
+                  pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                    d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                    [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                    -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\xA1\
+                    -\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\\
+                    d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                note:
+                  type: string
+                  nullable: true
+                  maxLength: 256
+                image:
+                  type: integer
+              required:
+              - url
+              - image
+          application/x-www-form-urlencoded:
+            schema: *id018
+          multipart/form-data:
+            schema: *id018
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  url:
+                    type: string
+                    format: uri
+                    maxLength: 256
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  delete:
+                    type: string
+                    format: uri
+                    nullable: true
+                    maxLength: 256
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  note:
+                    type: string
+                    nullable: true
+                    maxLength: 256
+                  image:
+                    type: integer
+                required:
+                - url
+                - image
+          description: ''
+    patch:
+      operationId: partial_updateHosting
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u56FE\u5E8A\u94FE\u63A5\
+          ."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id019
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  maxLength: 256
+                  pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                    d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                    [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                    -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\xA1\
+                    -\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\\
+                    d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                delete:
+                  type: string
+                  format: uri
+                  nullable: true
+                  maxLength: 256
+                  pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                    d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                    [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                    -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\xA1\
+                    -\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\\
+                    d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                note:
+                  type: string
+                  nullable: true
+                  maxLength: 256
+                image:
+                  type: integer
+          application/x-www-form-urlencoded:
+            schema: *id019
+          multipart/form-data:
+            schema: *id019
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  url:
+                    type: string
+                    format: uri
+                    maxLength: 256
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  delete:
+                    type: string
+                    format: uri
+                    nullable: true
+                    maxLength: 256
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  note:
+                    type: string
+                    nullable: true
+                    maxLength: 256
+                  image:
+                    type: integer
+                required:
+                - url
+                - image
+          description: ''
+    delete:
+      operationId: destroyHosting
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u56FE\u5E8A\u94FE\u63A5\
+          ."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api-picture/albums/:
+    get:
+      operationId: listAlbums
+      description: ''
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: integer
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                          readOnly: true
+                        name:
+                          type: string
+                          maxLength: 32
+                        created:
+                          type: string
+                          format: date
+                          readOnly: true
+                        description:
+                          type: string
+                          nullable: true
+                          maxLength: 128
+                      required:
+                      - name
+          description: ''
+    post:
+      operationId: createAlbum
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id020
+              properties:
+                name:
+                  type: string
+                  maxLength: 32
+                description:
+                  type: string
+                  nullable: true
+                  maxLength: 128
+              required:
+              - name
+          application/x-www-form-urlencoded:
+            schema: *id020
+          multipart/form-data:
+            schema: *id020
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 32
+                  created:
+                    type: string
+                    format: date
+                    readOnly: true
+                  description:
+                    type: string
+                    nullable: true
+                    maxLength: 128
+                required:
+                - name
+          description: ''
+  /api-picture/albums/{id}/:
+    get:
+      operationId: retrieveAlbum
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u76F8\u518C."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 32
+                  created:
+                    type: string
+                    format: date
+                    readOnly: true
+                  description:
+                    type: string
+                    nullable: true
+                    maxLength: 128
+                required:
+                - name
+          description: ''
+    put:
+      operationId: updateAlbum
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u76F8\u518C."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id021
+              properties:
+                name:
+                  type: string
+                  maxLength: 32
+                description:
+                  type: string
+                  nullable: true
+                  maxLength: 128
+              required:
+              - name
+          application/x-www-form-urlencoded:
+            schema: *id021
+          multipart/form-data:
+            schema: *id021
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 32
+                  created:
+                    type: string
+                    format: date
+                    readOnly: true
+                  description:
+                    type: string
+                    nullable: true
+                    maxLength: 128
+                required:
+                - name
+          description: ''
+    patch:
+      operationId: partial_updateAlbum
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u76F8\u518C."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id022
+              properties:
+                name:
+                  type: string
+                  maxLength: 32
+                description:
+                  type: string
+                  nullable: true
+                  maxLength: 128
+          application/x-www-form-urlencoded:
+            schema: *id022
+          multipart/form-data:
+            schema: *id022
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  name:
+                    type: string
+                    maxLength: 32
+                  created:
+                    type: string
+                    format: date
+                    readOnly: true
+                  description:
+                    type: string
+                    nullable: true
+                    maxLength: 128
+                required:
+                - name
+          description: ''
+    delete:
+      operationId: destroyAlbum
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u76F8\u518C."
+        schema:
+          type: string
+      - name: id
+        required: false
+        in: query
+        description: id
+        schema:
+          type: string
+      - name: name
+        required: false
+        in: query
+        description: name
+        schema:
+          type: string
+      - name: owner
+        required: false
+        in: query
+        description: owner
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+  /api-user/users/{id}/change-pwd/:
+    post:
+      operationId: changePasswordUser
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u7528\u6237."
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: &id023
+              properties:
+                username:
+                  type: string
+                  description: "\u5FC5\u586B\u3002150\u4E2A\u5B57\u7B26\u6216\u8005\
+                    \u66F4\u5C11\u3002\u5305\u542B\u5B57\u6BCD\uFF0C\u6570\u5B57\u548C\
+                    \u4EC5\u6709\u7684@/./+/-/_\u7B26\u53F7\u3002"
+                  pattern: ^[\w.@+-]+$
+                  maxLength: 150
+                password:
+                  type: string
+                  writeOnly: true
+                  description: "\u5FC5\u586B"
+                  maxLength: 128
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                nickname:
+                  type: string
+                  maxLength: 32
+                logo:
+                  type: string
+                  format: uri
+                  description: "\u4E00\u4E2AURL"
+                  maxLength: 200
+                  pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                    d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                    [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                    -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\.(?!-)(?:[a-z\xA1\
+                    -\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\.?|localhost))(?::\\\
+                    d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                phone:
+                  type: string
+                  maxLength: 11
+              required:
+              - username
+              - password
+              - email
+          application/x-www-form-urlencoded:
+            schema: *id023
+          multipart/form-data:
+            schema: *id023
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    readOnly: true
+                  username:
+                    type: string
+                    description: "\u5FC5\u586B\u3002150\u4E2A\u5B57\u7B26\u6216\u8005\
+                      \u66F4\u5C11\u3002\u5305\u542B\u5B57\u6BCD\uFF0C\u6570\u5B57\
+                      \u548C\u4EC5\u6709\u7684@/./+/-/_\u7B26\u53F7\u3002"
+                    pattern: ^[\w.@+-]+$
+                    maxLength: 150
+                  email:
+                    type: string
+                    format: email
+                    maxLength: 254
+                  email_is_active:
+                    type: boolean
+                    readOnly: true
+                  nickname:
+                    type: string
+                    maxLength: 32
+                  last_login:
+                    type: string
+                    format: date-time
+                    readOnly: true
+                  logo:
+                    type: string
+                    format: uri
+                    description: "\u4E00\u4E2AURL"
+                    maxLength: 200
+                    pattern: "^(?:[a-z0-9\\.\\-\\+]*)://(?:[^\\s:@/]+(?::[^\\s:@/]*)?@)?(?:(?:25[0-5]|2[0-4]\\\
+                      d|[0-1]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3}|\\\
+                      [[0-9a-f:\\.]+\\]|([a-z\xA1-\uFFFF0-9](?:[a-z\xA1-\uFFFF0-9-]{0,61}[a-z\xA1\
+                      -\uFFFF0-9])?(?:\\.(?!-)[a-z\xA1-\uFFFF0-9-]{1,63}(?<!-))*\\\
+                      .(?!-)(?:[a-z\xA1-\uFFFF-]{2,63}|xn--[a-z0-9]{1,59})(?<!-)\\\
+                      .?|localhost))(?::\\d{2,5})?(?:[/?#][^\\s]*)?\\Z"
+                  phone:
+                    type: string
+                    maxLength: 11
+                required:
+                - username
+                - email
+          description: ''
+  /api-user/token/:
+    post:
+      operationId: CreateTokenObtainPair
+      description: 'Takes a set of user credentials and returns an access and refresh
+        JSON web
+
+        token pair to prove the authentication of those credentials.'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id024
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  writeOnly: true
+              required:
+              - username
+              - password
+          application/x-www-form-urlencoded:
+            schema: *id024
+          multipart/form-data:
+            schema: *id024
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  username:
+                    type: string
+                required:
+                - username
+          description: ''
+  /api-user/refresh/:
+    post:
+      operationId: CreateTokenRefresh
+      description: 'Takes a refresh type JSON web token and returns an access type
+        JSON web
+
+        token if the refresh token is valid.'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id025
+              properties:
+                refresh:
+                  type: string
+              required:
+              - refresh
+          application/x-www-form-urlencoded:
+            schema: *id025
+          multipart/form-data:
+            schema: *id025
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  refresh:
+                    type: string
+                required:
+                - refresh
+          description: ''
+  /api-user/token/verify/:
+    post:
+      operationId: CreateTokenVerify
+      description: 'Takes a token and indicates if it is valid.  This view provides
+        no
+
+        information about a token''s fitness for a particular use.'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &id026
+              properties:
+                token:
+                  type: string
+              required:
+              - token
+          application/x-www-form-urlencoded:
+            schema: *id026
+          multipart/form-data:
+            schema: *id026
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  token:
+                    type: string
+                required:
+                - token
+          description: ''
