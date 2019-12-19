@@ -8,10 +8,10 @@ def isOwnerOrReadOnly(field='owner'):
         if request.method in drf.SAFE_METHODS:
             return True
         return bool(request.user and request.user.is_authenticated and eval('obj.%s == request.user' % field))
-    return type('IsOwnerOrReadOnly', (drf.BasePermission, ), {'has_object_permission': foo})
+    return type('IsOwnerOrReadOnly', (drf.IsAuthenticatedOrReadOnly, drf.BasePermission, ), {'has_object_permission': foo})
 
 
-class IsOwnerOrReadOnly(drf.BasePermission):
+class IsOwnerOrReadOnly(drf.IsAuthenticatedOrReadOnly, drf.BasePermission):
     """
     Object-level permission to only allow owners of an object to edit it.
     Assumes the model instance has an `owner` attribute.

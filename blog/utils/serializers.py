@@ -90,13 +90,19 @@ class PostSerializer(ModelSerializer):
         }
 
     def validate(self, data):
-        RelatedToOwn(True, 'author')(data['tags'], self.fields['tags'])
+        RelatedToOwnValidator(True, 'author')(
+            data['tags'], self.fields['tags'])
         return data
 
     def get_category_display(self, row):
-        if row.category is not None:
-            return {'id': row.category.id, 'name': row.category.name}
-        return {}
+        cate = row.category
+        res = []
+        n = 0
+        while cate is not None and n < 10:
+            res.append({'id': cate.id, 'name': cate.name})
+            cate = cate.parent
+            n += 1
+        return res[::-1]
 
     def get_tags_display(self, row):
         return ({'id': tag.id, 'name': tag.name} for tag in row.tags.all())

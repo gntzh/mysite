@@ -29,7 +29,7 @@ class PostViewSet(
     permission_classes = (isOwnerOrReadOnly('author'), )
     serializer_class = PostSerializer
     queryset = models.Post.objects.select_related(
-        'category', 'author', ).prefetch_related('tags').filter(is_public=True)
+        'category', 'category__parent','author', ).prefetch_related('tags').filter(is_public=True)
     pagination_class = pagination.PostPagination
 
     filterset_fields = ('tags', 'category', )
