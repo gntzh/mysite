@@ -80,8 +80,8 @@ class PostSerializer(ModelSerializer):
         extra_kwargs = {
             'created': {'read_only': True, 'format': '%Y-%m-%d %H:%M:%S'},
             'updated': {'read_only': True, 'format': '%Y-%m-%d %H:%M:%S'},
-            'tags': {'write_only': True, 'validators': [RelatedToOwnValidator(True, 'author'), M2MNumValidator(2), ]},
-            'category': {'write_only': True, 'validators': [RelatedToOwnValidator(False, 'author'), ]},
+            'tags': {'write_only': True, 'validators': [RelatedToOwnValidator(True), M2MNumValidator(2), ]},
+            'category': {'write_only': True, 'validators': [RelatedToOwnValidator(False), ]},
             'vote': {'read_only': True},
             'is_public': {'default': True},
             'tags_display': {'read_only': True},
@@ -90,7 +90,7 @@ class PostSerializer(ModelSerializer):
         }
 
     def validate(self, data):
-        RelatedToOwnValidator(True, 'author')(
+        RelatedToOwnValidator(True)(
             data['tags'], self.fields['tags'])
         M2MNumValidator(10)(data['tags'], self.fields['tags'])
         return data
