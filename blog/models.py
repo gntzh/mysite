@@ -121,7 +121,7 @@ class Post(models.Model):
     def clean(self):
         # 无法得到要保存的tags, 如果是修改self.tags.all()拿到的是旧数据
         # 如果是创建, 无法拿到连Manager都拿不到
-        if self.author != self.category.owner:
+        if self.category is not None and self.author != self.category.owner:
             raise ValidationError("不允许关联他人的分类<category(%s): %s>" % (
                 self.category.id, self.category.name))
         super(Post, self).clean()

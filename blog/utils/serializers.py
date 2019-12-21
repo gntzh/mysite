@@ -1,5 +1,5 @@
 from utils.rest.serializers import drf as serializers, ModelSerializer
-from utils.rest.validators import RelatedToOwnValidator, UniqueTogetherValidator
+from utils.rest.validators import RelatedToOwnValidator, UniqueTogetherValidator, M2MNumValidator
 from ..models import Post, Tag, Category
 from . import validators
 
@@ -80,7 +80,7 @@ class PostSerializer(ModelSerializer):
         extra_kwargs = {
             'created': {'read_only': True, 'format': '%Y-%m-%d %H:%M:%S'},
             'updated': {'read_only': True, 'format': '%Y-%m-%d %H:%M:%S'},
-            'tags': {'write_only': True, 'validators': [RelatedToOwnValidator(True, 'author'), ]},
+            'tags': {'write_only': True, 'validators': [RelatedToOwnValidator(True, 'author'), M2MNumValidator(2), ]},
             'category': {'write_only': True, 'validators': [RelatedToOwnValidator(False, 'author'), ]},
             'vote': {'read_only': True},
             'is_public': {'default': True},
@@ -92,6 +92,7 @@ class PostSerializer(ModelSerializer):
     def validate(self, data):
         RelatedToOwnValidator(True, 'author')(
             data['tags'], self.fields['tags'])
+        M2MNumValidator(10)(data['tags'], self.fields['tags'])
         return data
 
     def get_category_display(self, row):

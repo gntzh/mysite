@@ -4,6 +4,7 @@ from utils.rest.mixins import drf as mixins
 
 from .models import Album, ThirdPartyImage, Hosting
 from .utils.serializers import TPImageSerializer, HostingSerializer, AlbumSerializer
+from utils.rest.permissions import isOwnerOrReadOnly
 from .utils import filters
 
 
@@ -14,7 +15,7 @@ class TPImageViewSet(
         mixins.DestroyModelMixin,
         mixins.ListModelMixin,
         GenericViewSet):
-    permission_classes = []
+    permission_classes = (isOwnerOrReadOnly(), )
     serializer_class = TPImageSerializer
     queryset = ThirdPartyImage.objects.select_related(
         'owner', 'album').prefetch_related('hostings')
@@ -37,7 +38,7 @@ class HostingViewSet(
         mixins.DestroyModelMixin,
         mixins.ListModelMixin,
         GenericViewSet):
-    permission_classes = []
+    permission_classes = (isOwnerOrReadOnly(), )
     serializer_class = HostingSerializer
     queryset = Hosting.objects.select_related('owner', 'image')
     # pagination_class = pagination.Pagination
@@ -56,7 +57,7 @@ class AlbumViewSet(
         mixins.DestroyModelMixin,
         mixins.ListModelMixin,
         GenericViewSet):
-    permission_classes = []
+    permission_classes = (isOwnerOrReadOnly(), )
     serializer_class = AlbumSerializer
     queryset = Album.objects.select_related('owner')
     # pagination_class = pagination.Pagination
