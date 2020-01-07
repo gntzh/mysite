@@ -1,5 +1,5 @@
 from utils.rest.serializers import drf as serializers, ModelSerializer
-from utils.rest.validators import RelatedToOwnValidator, UniqueTogetherValidator, M2MNumValidator
+from utils.rest.validators import RelatedToOwnValidator, UniqueTogetherValidator, M2MNumValidator, RecursiveRelationValidator
 from ..models import Post, Tag, Category
 from . import validators
 
@@ -37,14 +37,17 @@ class CategorySerializer(ModelSerializer):
         fields = ['id', 'name', 'parent', 'children',
                   'owner', 'post_num', 'posts', 'is_leaf']
         extra_kwargs = {
-            'parent': {'required': False, 'default': None}
+            'parent': {'required': False, 'default': None, 'validators': (RelatedToOwnValidator(),)}
         }
         validators = [UniqueTogetherValidator(
-            Category.objects.all(), ['name', 'parent', 'owner'])]
+            Category.objects.all(), ['name', 'parent', 'owner']),
+            UniqueTogetherValidator(
+            Category.objects.filter(parent__isnull=True), ['name', 'parent', 'owner']),
+            RecursiveRelationValidator()
+        ]
 
     def validate(self, data):
-        data = validators.uniqueCate(data)
-        data = validators.validateParent(data)
+        self.instance.clean()
         return data
 
     def get_children(self, row):

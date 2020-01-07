@@ -39,12 +39,18 @@ class Category(models.Model):
         super(Category, self).validate_unique(exclude)
 
     def clean(self):
+        errors = {}
         if self.parent == self:
-            raise ValidationError('不允许将父级分类设为自己')
+            errors['parent'] = '不允许将父级分类设为自己'
         parent_owner = getattr(self.parent, 'owner', None)
         if parent_owner is not None and parent_owner != self.owner:
-            raise ValidationError('不允许关联他人的分类')
-        super(Category, self).clean()
+            errors['parent'] = '不允许关联他人的分类'
+        try:
+            super(Category, self).clean()
+        except ValidationError as e:
+            errors = e.update_error_dict(errors)
+        if errors:
+            raise ValidationError(errors)
 
     class Meta:
         verbose_name = '分类'
@@ -107,8 +113,9 @@ class Post(models.Model):
     created = models.DateTimeField('发布时间', auto_now_add=True)
     updated = models.DateTimeField('最近修改', auto_now=True)
     category = models.ForeignKey('Category',
-                                 on_delete=models.DO_NOTHING,
+                                 on_delete=models.SET_DEFAULT,
                                  verbose_name='分类',
+                                 default=None,
                                  blank=True,
                                  null=True)
     tags = models.ManyToManyField(

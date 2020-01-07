@@ -7,9 +7,12 @@ user_id = 1
 
 def createUser(username='test%d' % user_id, email='test%d@gmail.com' % user_id):
     User.objects.create_user(username=username, email=email)
+    global user_id
     user_id += 1
+    return User.objects.get(pk=user_id-1)
 
 
 def createAdmin(username='test%d' % user_id, email='test%d@gmail.com' % user_id):
     User.objects.create_superuser(username=username, email=email)
     user_id += 1
+    return User.objects.get(pk=user_id-1)

@@ -20,7 +20,6 @@ class RelatedToOwnValidator:
             if getattr(data, self.to_owner_field) != from_owner:
                 raise ValidationError('不允许关联他人的%s' %
                                       serializer_field.source_attrs[-1])
-        return data
 
 
 class M2MNumValidator:
@@ -40,4 +39,21 @@ class M2MNumValidator:
             if num > self.max_num:
                 raise ValidationError('%s关联不得多于%d个' % (
                     serializer_field.source_attrs[-1], self.max_num))
-        return data
+
+
+class RecursiveRelationValidator():
+    def __init__(self, m2o_field='parent'):
+        self.m2o_field = m2o_field
+
+    requires_context = True
+
+    def __call__(self, data, serializer):
+        print(data, serializer)
+        instance = getattr(serializer, 'instance', None)
+        parent = data[self.m2o_field]
+        if parent is None:
+            return
+        if instance is not None:
+            print(instance)
+            if instance.id == parent.id:
+                raise ValidationError('不允许关联分类本身')

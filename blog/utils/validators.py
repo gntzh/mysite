@@ -4,19 +4,19 @@ from ..models import Post, Tag, Category
 
 def createOrUpdate(data):
     id = data.get('pk', None)
-    if(id):
+    if id is None:
         id = data.get('id', None)
     return id
 
 
-def validateParent(data):
-    parent = data['parent']
-    id = createOrUpdate(data)
-    if parent is None:
-        return data
-    if parent.id == id:
-        raise ValidationError('不允许关联分类本身')
-    return data
+def get_data(id, data, model, *fields):
+    res = {}
+    for f in fields:
+        try:
+            res[f] = data[f]
+        except KeyError as e:
+            obj = model.objects.get(pk=id)
+            res[f] = obj.f
 
 
 def uniqueCate(data):
