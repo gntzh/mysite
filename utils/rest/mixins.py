@@ -7,11 +7,18 @@ class RetrieveModelMixin:
     """
     Retrieve a model instance.
     """
+    one_included = one_excluded = ()
 
     def retrieve(self, request, *args, **kwargs):
-        excluded = getattr(self, 'one_excluded', None)
+        # QueryDict().getlist(key, default=None)
+        # 坑: 默认的(default=None时)返回值为[]
+        included = set(
+            self.one_included or request.query_params.getlist('included'))
+        excluded = set(request.query_params.getlist(
+            'excluded')) | set(self.one_excluded)
         instance = self.get_object()
-        serializer = self.get_serializer(instance, excluded=excluded)
+        serializer = self.get_serializer(
+            instance,  included=included, excluded=excluded)
         return drf.Response(serializer.data)
 
 
@@ -20,18 +27,22 @@ class ListModelMixin:
     List a queryset.
     判断是否
     """
+    many_included = many_excluded = ()
 
     def list(self, request, *args, **kwargs):
-        excluded = getattr(self, 'many_excluded', None)
+        included = set(
+            self.many_included or request.query_params.getlist('included')) or None
+        excluded = set(request.query_params.getlist(
+            'excluded')) | set(self.many_excluded or ())
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(
-                page, many=True, excluded=excluded)
+                page, many=True, included=included, excluded=excluded)
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(
-            queryset, many=True, excluded=excluded)
+            queryset, many=True, included=included, excluded=excluded)
         return drf.Response(serializer.data)
 
 

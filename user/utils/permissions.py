@@ -7,6 +7,19 @@ from rest_framework.permissions import (
 )
 
 
+class UserCreatePermission(BasePermission):
+    """
+    The request is authenticated as a user, or is a read-only request.
+    """
+
+    def has_permission(self, request, view):
+        return bool(
+            request.method in ('POST', 'GET', 'HEAD', 'OPTIONS') or
+            request.user and
+            request.user.is_authenticated
+        )
+
+
 class IsOwnerOrAdmin(BasePermission):
     def has_permission(self, request, view):
         return IsAuthenticated().has_permission(request, view)
