@@ -1,5 +1,6 @@
 from utils.rest.serializers import drf as serializers, ModelSerializer
 from utils.rest.validators import RelatedToOwnValidator, UniqueTogetherValidator, M2MNumValidator, RecursiveRelationValidator
+
 from ..models import Post, Tag, Category
 from . import validators
 
@@ -20,8 +21,7 @@ class TagSerializer(ModelSerializer):
     def get_posts(self, row):
         return [{'id': post.id,
                  'title': post.title,
-                 'created': post.created.strftime('%Y-%m-%d %H:%M:%S'),
-                 'author': post.author.username}
+                 'created': post.created.strftime('%Y-%m-%d %H:%M:%S'), }
                 for post in row.posts.all()]
 
 
@@ -29,13 +29,14 @@ class CategorySerializer(ModelSerializer):
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     post_num = serializers.SerializerMethodField()
     posts = serializers.SerializerMethodField()
+    siblings = serializers.SerializerMethodField()
     children = serializers.SerializerMethodField()
     is_leaf = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
-        fields = ['id', 'name', 'parent', 'children',
-                  'owner', 'post_num', 'posts', 'is_leaf']
+        fields = ('id', 'name', 'parent', 'children',
+                  'owner', 'post_num', 'posts', 'is_leaf', 'siblings')
         extra_kwargs = {
             'parent': {'required': False, 'default': None, 'validators': (RelatedToOwnValidator(),)}
         }
@@ -50,6 +51,17 @@ class CategorySerializer(ModelSerializer):
         self.instance.clean()
         return data
 
+    def get_siblings(self, row):
+        if row.parent is None:
+            siblings = Category.objects.filter(
+                parent__isnull=True, owner=row.owner.id).only('name')
+        else:
+            siblings = Category.objects.filter(
+                parent=row.parent.id, owner=row.owner.id).only('name')
+        return [{'id': i.id,
+                 'name': i.name, }
+                for i in siblings]
+
     def get_children(self, row):
         return [{'id': i.id,
                  'name': i.name, }
@@ -59,10 +71,11 @@ class CategorySerializer(ModelSerializer):
         return row.postsNum()
 
     def get_posts(self, row):
+        # assert self.instance is row
         return [{'id': post.id,
                  'title': post.title,
                  'created': post.created.strftime('%Y-%m-%d %H:%M:%S'),
-                 'author': post.author.username}
+                 }
                 for post in row.posts.all()]
 
     def get_is_leaf(self, row):
