@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -97,4 +98,20 @@ class CategoryViewSet(
     ordering_fields = ('posts', 'post_num')
     ordering = 'id'
 
-    many_excluded = ('posts', 'children', 'siblings')
+    many_excluded = ('posts', 'children', 'siblings', )
+    one_excluded = ('siblings', )
+
+    @action(detail=True, url_path='display', url_name='display',)
+    def display(self, request, *args, **kwargs):
+        '''
+        用于前端树形控件展示分类
+        '''
+        included = ('id', 'name',)
+        try:
+            cates = CategorySerializer(self.queryset.filter(
+                parent=kwargs['pk']), included=('id', 'name', 'is_leaf'), many=True)
+            posts = PostSerializer(Post.objects.filter(
+                category=kwargs['pk']), included=('id', 'title'), many=True)
+        except (TypeError, ValueError):
+            raise Http404
+        return Response(cates.data + posts.data)

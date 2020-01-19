@@ -36,7 +36,7 @@ class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
         fields = ('id', 'name', 'parent', 'children',
-                  'owner', 'post_num', 'posts', 'is_leaf', 'siblings')
+                  'owner', 'post_num', 'posts', 'is_leaf', 'siblings', 'owner_id')
         extra_kwargs = {
             'parent': {'required': False, 'default': None, 'validators': (RelatedToOwnValidator(),)}
         }
