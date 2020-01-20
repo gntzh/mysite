@@ -102,6 +102,11 @@ class Category(models.Model):
         return "<Category(%s):%s>" % (self.id, self.name[:8])
 
 
+class PublicManager(models.Manager):
+    def get_queryset(self):
+        return super(PublicManager, self).get_queryset().filter(is_public=True)
+
+
 class Post(models.Model):
     title = models.CharField('标题', max_length=64, default='无标题')
     author = models.ForeignKey(User,
@@ -125,6 +130,8 @@ class Post(models.Model):
     vote = models.PositiveIntegerField('点赞', default=0)
 
     comments = GenericRelation(Comment, related_query_name='post',)
+    objects = models.Manager()
+    public = PublicManager()
 
     def clean(self):
         # 无法得到要保存的tags, 如果是修改self.tags.all()拿到的是旧数据

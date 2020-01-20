@@ -24,8 +24,8 @@ class PostViewSet(
         GenericViewSet):
     permission_classes = (isOwnerOrReadOnly('author'), )
     serializer_class = PostSerializer
-    queryset = Post.objects.select_related(
-        'category', 'category__parent', 'author', ).prefetch_related('tags').filter(is_public=True)
+    queryset = Post.public.select_related(
+        'category', 'category__parent', 'author', ).prefetch_related('tags')
     pagination_class = pagination.PostPagination
 
     filterset_fields = ('tags', 'category', )
@@ -35,6 +35,18 @@ class PostViewSet(
 
     many_excluded = ('content', 'is_public', )
     one_excluded = ('excerpt', )
+
+    @action(detail=True, url_path='similar', url_name='similar_post')
+    def similar(self, request, pk):
+        post = get_object_or_404(Post.public, id=pk)
+        post_tags_ids = post.tags.values_list('id')
+        similar_posts = Post.public.filter(
+            tags__in=post_tags_ids).exclude(id=post.id)
+        queryset = similar_posts.annotate(same_tags_count=Count(
+            'tags')).order_by('-same_tags_count', '-created')[:4]
+        serializer = self.get_serializer(
+            queryset, many=True, excluded=('is_public',))
+        return Response(serializer.data)
 
 
 class TagViewSet(
