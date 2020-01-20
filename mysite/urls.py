@@ -18,6 +18,8 @@ from django.urls import path, include
 from django.conf import settings
 from rest_framework.schemas import get_schema_view
 
+from blog.feeds import PostFeed
+
 schema_view = get_schema_view(title="API")
 
 urlpatterns = [
@@ -25,8 +27,10 @@ urlpatterns = [
     path('api-user/', include('user.urls')),
     path('api-blog/', include('blog.urls')),
     path('api-picture/', include('picture.urls')),
-    path('schema/', schema_view)
+    path('schema/', schema_view),
+    path('rss/u/<int:user_id>/blog/', PostFeed()),
 ]
+
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns = [
