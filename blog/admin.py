@@ -28,7 +28,7 @@ class PostAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'parent', 'owner', 'postsNum', 'getPosition',)
+    list_display = ('id', 'name', 'parent', 'owner', 'post_count', 'getPosition',)
     list_editable = ('name', )  # 若添加'parent'字段 SQL查询重复太多
     # empty_value_display = '无父级分类'
     ordering = ('name', )

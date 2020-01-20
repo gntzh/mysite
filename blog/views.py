@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import action
@@ -47,14 +48,14 @@ class TagViewSet(
     permission_classes = (isOwnerOrReadOnly(), )
     serializer_class = TagSerializer
     queryset = Tag.objects.select_related(
-        'owner').prefetch_related('posts')
+        'owner').prefetch_related('posts').annotate(post_count=Count('post'))
     pagination_class = pagination.Pagination
 
     filter_backends = [filters.filters.DjangoFilterBackend,
                        filters.drf_filters.SearchFilter, filters.drf_filters.OrderingFilter]
     filterset_fields = ('id', 'name', 'owner', )
     search_fields = ('name', )
-    ordering_fields = ('owner', )
+    ordering_fields = ('post_count', )
     ordering = 'id'
 
     many_excluded = ('posts',)
@@ -86,8 +87,8 @@ class CategoryViewSet(
         GenericViewSet):
     permission_classes = (isOwnerOrReadOnly(), )
     serializer_class = CategorySerializer
-    queryset = Category.objects.select_related(
-        'owner', 'parent').prefetch_related('posts', 'children', ).defer(*('owner__' + i for i in defer))
+    queryset = Category.objects.select_related('owner', 'parent').prefetch_related(
+        'posts', 'children', ).defer(*('owner__' + i for i in defer)).annotate(post_count=Count('post'))
     pagination_class = pagination.Pagination
 
     filter_backends = [filters.filters.DjangoFilterBackend,
@@ -95,7 +96,7 @@ class CategoryViewSet(
                        filters.drf_filters.OrderingFilter]
     filterset_class = filters.CategoryFilter
     search_fields = ('name',)
-    ordering_fields = ('posts', 'post_num')
+    ordering_fields = ('post_count', )
     ordering = 'id'
 
     many_excluded = ('posts', 'children', 'siblings', )

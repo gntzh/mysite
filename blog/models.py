@@ -58,9 +58,9 @@ class Category(models.Model):
         unique_together = ['owner', 'name', 'parent']
         default_related_name = 'categories'
 
-    def postsNum(self):
+    def post_count(self):
         return self.posts.count()
-    postsNum.short_description = '博客数量'
+    post_count.short_description = '博客数量'
 
     def isRoot(self):
         if self.parent is None:
@@ -115,6 +115,7 @@ class Post(models.Model):
     category = models.ForeignKey('Category',
                                  on_delete=models.SET_DEFAULT,
                                  verbose_name='分类',
+                                 related_query_name='post',
                                  default=None,
                                  blank=True,
                                  null=True)

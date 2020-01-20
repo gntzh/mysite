@@ -7,16 +7,18 @@ from . import validators
 
 class TagSerializer(ModelSerializer):
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    post_num = serializers.SerializerMethodField()
+    post_count = serializers.SerializerMethodField()
     posts = serializers.SerializerMethodField()
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'owner', 'post_num', 'posts']
+        fields = ['id', 'name', 'owner', 'post_count', 'posts']
         extra_kwargs = {}
 
-    def get_post_num(self, row):
-        return row.posts.count()
+    def get_post_count(self, row):
+        # 需queryset提供注解字段post_count
+        # return row.posts.count()
+        return row.post_count
 
     def get_posts(self, row):
         return [{'id': post.id,
@@ -27,7 +29,7 @@ class TagSerializer(ModelSerializer):
 
 class CategorySerializer(ModelSerializer):
     owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    post_num = serializers.SerializerMethodField()
+    post_count = serializers.SerializerMethodField()
     posts = serializers.SerializerMethodField()
     siblings = serializers.SerializerMethodField()
     children = serializers.SerializerMethodField()
@@ -36,7 +38,7 @@ class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
         fields = ('id', 'name', 'parent', 'children',
-                  'owner', 'post_num', 'posts', 'is_leaf', 'siblings', 'owner_id')
+                  'owner', 'post_count', 'posts', 'is_leaf', 'siblings', 'owner_id')
         extra_kwargs = {
             'parent': {'required': False, 'default': None, 'validators': (RelatedToOwnValidator(),)}
         }
@@ -67,8 +69,9 @@ class CategorySerializer(ModelSerializer):
                  'name': i.name, }
                 for i in row.children.all()]
 
-    def get_post_num(self, row):
-        return row.postsNum()
+    def get_post_count(self, row):
+        # return row.post_count()
+        return row.post_count
 
     def get_posts(self, row):
         # assert self.instance is row
@@ -99,10 +102,7 @@ class PostSerializer(ModelSerializer):
             'tags': {'write_only': True, 'validators': [RelatedToOwnValidator(True), M2MNumValidator(2), ]},
             'category': {'write_only': True, 'validators': [RelatedToOwnValidator(False), ]},
             'vote': {'read_only': True},
-            'is_public': {'default': True},
-            'tags_display': {'read_only': True},
-            'category_display': {'read_only': True},
-            'author_display': {'read_only': True},
+            'is_public': {'default': True}
         }
 
     def validate(self, data):
@@ -112,14 +112,16 @@ class PostSerializer(ModelSerializer):
         return data
 
     def get_category_display(self, row):
-        cate = row.category
-        res = []
-        n = 0
-        while cate is not None and n < 10:
-            res.append({'id': cate.id, 'name': cate.name})
-            cate = cate.parent
-            n += 1
-        return res[::-1]
+        if row.category is not None:
+            return {"id": row.category.id, "name": row.category.name}
+        return None
+        # res = []
+        # n = 0
+        # while cate is not None and n < 10:
+        #     res.append({'id': cate.id, 'name': cate.name})
+        #     cate = cate.parent
+        #     n += 1
+        # return res[::-1]
 
     def get_tags_display(self, row):
         return ({'id': tag.id, 'name': tag.name} for tag in row.tags.all())
