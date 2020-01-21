@@ -18,7 +18,7 @@ from django.urls import path, include
 from django.conf import settings
 from rest_framework.schemas import get_schema_view
 
-from blog.feeds import PostFeed
+from blog.utils.feeds import PostFeed, LatestPostsFeed
 
 schema_view = get_schema_view(title="API")
 
@@ -28,6 +28,7 @@ urlpatterns = [
     path('api-blog/', include('blog.urls')),
     path('api-picture/', include('picture.urls')),
     path('schema/', schema_view),
+    path('rss/blog/', LatestPostsFeed()),
     path('rss/u/<int:user_id>/blog/', PostFeed()),
 ]
 
