@@ -47,7 +47,6 @@ class UserViewSet(ListModelMixin,
                   mixins.DestroyModelMixin,
                   GenericViewSet):
     serializer_class = serializers.UserSerializer
-    permission_classes = []
     queryset = User.objects.all()
     ordering = 'id'
 

@@ -12,7 +12,7 @@ class TagSerializer(ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'owner', 'post_count', 'posts']
+        fields = ['id', 'name', 'owner', 'owner_id','post_count', 'posts']
         extra_kwargs = {}
 
     def get_post_count(self, row):
@@ -94,7 +94,7 @@ class PostSerializer(ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'author', 'author_display', 'is_public', 'allow_comments', 'created',
+        fields = ['id', 'title', 'author', 'author_id', 'author_display', 'is_public', 'allow_comments', 'created',
                   'updated', 'tags', 'tags_display', 'category', 'category_display', 'excerpt', 'content', 'vote']
         extra_kwargs = {
             'created': {'read_only': True, 'format': '%Y-%m-%d %H:%M:%S'},
