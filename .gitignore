@@ -152,5 +152,7 @@ media/
 scripts/uwsgi.pid
 
 # log
-
 log/
+
+# whoosh索引文件
+whoosh_index/
