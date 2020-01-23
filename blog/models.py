@@ -45,10 +45,6 @@ class Category(models.Model):
         parent_owner = getattr(self.parent, 'owner', None)
         if parent_owner is not None and parent_owner != self.owner:
             errors['parent'] = '不允许关联他人的分类'
-        try:
-            super(Category, self).clean()
-        except ValidationError as e:
-            errors = e.update_error_dict(errors)
         if errors:
             raise ValidationError(errors)
 
@@ -130,6 +126,7 @@ class Post(models.Model):
     vote = models.PositiveIntegerField('点赞', default=0)
 
     comments = GenericRelation(Comment, related_query_name='post',)
+    comment_count = models.PositiveIntegerField('评论数', default=0)
     objects = models.Manager()
     public = PublicManager()
 

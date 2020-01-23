@@ -1,8 +1,8 @@
-from utils.rest.serializers import drf as serializers, ModelSerializer
-from utils.rest.validators import RelatedToOwnValidator, UniqueTogetherValidator, M2MNumValidator, RecursiveRelationValidator
-
-from ..models import Post, Tag, Category
 from . import validators
+from ..models import Post, Tag, Category
+from utils.rest.serializers import drf as serializers, ModelSerializer
+from utils.rest.validators import (
+    RelatedToOwnValidator, UniqueTogetherValidator, M2MNumValidator, RecursiveRelationValidator)
 
 
 class TagSerializer(ModelSerializer):
@@ -12,7 +12,7 @@ class TagSerializer(ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'owner', 'owner_id','post_count', 'posts']
+        fields = ['id', 'name', 'owner', 'owner_id', 'post_count', 'posts']
         extra_kwargs = {}
 
     def get_post_count(self, row):
@@ -48,10 +48,6 @@ class CategorySerializer(ModelSerializer):
             Category.objects.filter(parent__isnull=True), ['name', 'parent', 'owner']),
             RecursiveRelationValidator()
         ]
-
-    def validate(self, data):
-        self.instance.clean()
-        return data
 
     def get_siblings(self, row):
         if row.parent is None:

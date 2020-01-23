@@ -48,12 +48,11 @@ class RecursiveRelationValidator():
     requires_context = True
 
     def __call__(self, data, serializer):
-        print(data, serializer)
         instance = getattr(serializer, 'instance', None)
         parent = data[self.m2o_field]
         if parent is None:
             return
+        # 创建时instance为None, 这时也不可能关联到本身
         if instance is not None:
-            print(instance)
             if instance.id == parent.id:
-                raise ValidationError('不允许关联分类本身')
+                raise ValidationError('不允许关联本身')

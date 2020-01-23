@@ -27,6 +27,7 @@ urlpatterns = [
     path('api-user/', include('user.urls')),
     path('api-blog/', include('blog.urls')),
     path('api-picture/', include('picture.urls')),
+    path('api-comment/', include('comment.urls')),
     path('schema/', schema_view),
     path('rss/blog/', LatestPostsFeed()),
     path('rss/u/<int:user_id>/blog/', PostFeed()),

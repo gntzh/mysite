@@ -16,7 +16,7 @@ class PostAdmin(admin.ModelAdmin):
 
     fieldsets = [
         (None, {'fields': ('title', 'author')}),
-        (None, {'fields': (('is_public', 'allow_comments'), 'vote', 'category', 'tags')}),
+        (None, {'fields': (('is_public', 'allow_comments'), ('vote', 'comment_count'), 'category', 'tags')}),
         ('内容', {'fields': ('content',)})
     ]
     filter_horizontal = ('tags',)
@@ -28,7 +28,8 @@ class PostAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'parent', 'owner', 'post_count', 'getPosition',)
+    list_display = ('id', 'name', 'parent', 'owner',
+                    'post_count', 'getPosition',)
     list_editable = ('name', )  # 若添加'parent'字段 SQL查询重复太多
     # empty_value_display = '无父级分类'
     ordering = ('name', )

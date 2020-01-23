@@ -19,6 +19,7 @@ class User(AbstractUser):
     email_is_active = models.BooleanField(verbose_name='邮箱状态', default=False)
     created = models.DateTimeField("注册时间", auto_now_add=True)
     sign = models.CharField(max_length=128, verbose_name='个人签名', blank=True)
+    comment_count = models.PositiveIntegerField('留言数', default=0, )
 
     class Meta:
         verbose_name = "用户"

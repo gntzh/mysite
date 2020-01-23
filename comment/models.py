@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.conf import settings
-from django.db.models import Q
+from django.core.exceptions import ValidationError
+from django.db.models import Q, F
 
 allow_comments_models = Q()
 
@@ -16,8 +17,10 @@ class Comment(models.Model):
                               on_delete=models.CASCADE, verbose_name='创建者')
     created = models.DateTimeField('评论时间', auto_now_add=True)
     content = models.TextField('内容', max_length=512)
+    #  limit_choices_to=Q(parent__isnull=True) | Q(parent__parent__isnull=True)
+    # 允许最多二级评论(保存时检查, 超过降级), 因此上面的限制也就没必要了
     parent = models.ForeignKey('self', blank=True, null=True, default=None, on_delete=models.CASCADE,
-                               related_query_name='child', related_name='children', verbose_name='父级评论')
+                               related_query_name='child', related_name='children', verbose_name='父级评论',)
 
     # 被评论的model
     content_type = models.ForeignKey(
@@ -26,6 +29,33 @@ class Comment(models.Model):
     object_id = models.PositiveIntegerField('被评论的实例id')
     # 集中content_type和object_id, 便于ORM操作, 但该字段不存储任何数据
     content_object = GenericForeignKey('content_type', 'object_id')
+
+    def clean(self):
+        errors = {}
+        # 检查与父级评论是否对同一对象评论
+        if self.parent is not None:
+            if self.content_type != self.parent.content_type or self.object_id != self.parent.object_id:
+                errors = ValidationError(
+                    '子评论应与父评论对同一对象:父级评论%s' % self.content_object).update_error_dict(errors)
+        if errors:
+            raise ValidationError(errors)
+
+    def more_than_2(self):
+        """检查是否超过二级
+        """
+        # if self.pk:
+        #     return Comment.objects.filter(Q(pk=self.pk) & (Q(parent__isnull=True) | Q(parent__parent__isnull=True))).exists()
+        # else:
+        #     return bool(self.parent is None or self.parent.parent is None)
+        return not (self.parent is None or self.parent.parent is None)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.content_type.get_all_objects_for_this_type(
+                id=self.object_id).update(comment_count=F('comment_count')+1)
+        if self.more_than_2():
+            self.parent = self.parent.parent
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = '评论'
