@@ -6,14 +6,14 @@ from utils.rest.validators import (
 
 
 class TagSerializer(ModelSerializer):
-    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     post_count = serializers.SerializerMethodField()
     posts = serializers.SerializerMethodField()
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'owner', 'owner_id', 'post_count', 'posts']
-        extra_kwargs = {}
+        fields = ['id', 'name', 'owner', 'post_count', 'posts']
+        read_only_fields = ('owner', )
+        extra_kwargs = {'owner': {'default': serializers.CurrentUserDefault()}}
 
     def get_post_count(self, row):
         # 需queryset提供注解字段post_count
@@ -38,9 +38,11 @@ class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
         fields = ('id', 'name', 'parent', 'children',
-                  'owner', 'post_count', 'posts', 'is_leaf', 'siblings', 'owner_id')
+                  'owner', 'post_count', 'posts', 'is_leaf', 'siblings', )
+        read_only_fields = ('owner', )
         extra_kwargs = {
-            'parent': {'required': False, 'default': None, 'validators': (RelatedToOwnValidator(),)}
+            'parent': {'required': False, 'default': None, 'validators': (RelatedToOwnValidator(),)},
+            'owner': {'default': serializers.CurrentUserDefault()},
         }
         validators = [UniqueTogetherValidator(
             Category.objects.all(), ['name', 'parent', 'owner']),
@@ -85,26 +87,28 @@ class PostSerializer(ModelSerializer):
     author_display = serializers.SerializerMethodField()
     tags_display = serializers.SerializerMethodField()
     category_display = serializers.SerializerMethodField()
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     excerpt = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = ['id', 'title', 'author', 'author_id', 'author_display', 'is_public', 'allow_comments', 'created',
-                  'updated', 'tags', 'tags_display', 'category', 'category_display', 'excerpt', 'content', 'vote']
+                  'updated', 'tags', 'tags_display', 'category', 'category_display', 'comment_count', 'excerpt', 'content', 'vote']
+        read_only_fields = ('created', 'updated', 'vote',
+                            'comment_count', 'author',)
         extra_kwargs = {
-            'created': {'read_only': True, 'format': '%Y-%m-%d %H:%M:%S'},
-            'updated': {'read_only': True, 'format': '%Y-%m-%d %H:%M:%S'},
+            'created': {'format': '%Y-%m-%d %H:%M:%S'},
+            'updated': {'format': '%Y-%m-%d %H:%M:%S'},
             'tags': {'write_only': True, 'validators': [RelatedToOwnValidator(True), M2MNumValidator(2), ]},
             'category': {'write_only': True, 'validators': [RelatedToOwnValidator(False), ]},
-            'vote': {'read_only': True},
-            'is_public': {'default': True}
+            'is_public': {'default': True},
+            'author': {'default': serializers.CurrentUserDefault(), },
         }
 
     def validate(self, data):
-        RelatedToOwnValidator(True)(
-            data['tags'], self.fields['tags'])
-        M2MNumValidator(10)(data['tags'], self.fields['tags'])
+        if data.get('tags', False):
+            RelatedToOwnValidator(True)(
+                data['tags'], self.fields['tags'])
+            M2MNumValidator(10)(data['tags'], self.fields['tags'])
         return data
 
     def get_category_display(self, row):

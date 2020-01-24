@@ -4,10 +4,10 @@ from rest_framework.serializers import ValidationError
 from blog.models import Post
 from ..models import Comment
 
-
+# TODO 修改其他的报错行为, 以字段映射字典返回更加详细的信息
 def to_same_object(data):
     if data['parent'] is not None and data['object_id'] != data['parent'].object_id:
-        raise ValidationError('子评论应与父评论对同一对象:父级评论')
+        raise ValidationError({'object_id': '子评论应与父评论对同一对象:父级评论'})
 
 
 class BlogCommentSerializer(serializers.ModelSerializer):
