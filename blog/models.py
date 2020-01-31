@@ -123,7 +123,7 @@ class Post(models.Model):
     tags = models.ManyToManyField(
         'Tag', blank=True, related_query_name='post', verbose_name='标签')
     content = models.TextField('内容', default='无内容')
-    vote = models.PositiveIntegerField('点赞', default=0)
+    vote_count = models.PositiveIntegerField('喜欢', default=0)
 
     comments = GenericRelation(Comment, related_query_name='post',)
     comment_count = models.PositiveIntegerField('评论数', default=0)

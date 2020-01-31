@@ -92,8 +92,8 @@ class PostSerializer(ModelSerializer):
     class Meta:
         model = Post
         fields = ['id', 'title', 'author', 'author_id', 'author_display', 'is_public', 'allow_comments', 'created',
-                  'updated', 'tags', 'tags_display', 'category', 'category_display', 'comment_count', 'excerpt', 'content', 'vote']
-        read_only_fields = ('created', 'updated', 'vote',
+                  'updated', 'tags', 'tags_display', 'category', 'category_display', 'comment_count', 'excerpt', 'content', 'likes']
+        read_only_fields = ('created', 'updated', 'vote_count',
                             'comment_count', 'author',)
         extra_kwargs = {
             'created': {'format': '%Y-%m-%d %H:%M:%S'},
