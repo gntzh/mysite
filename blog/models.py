@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from comment.models import Comment
+from comment.models import RootComment
 from django.contrib.contenttypes.fields import GenericRelation
 
 User = settings.AUTH_USER_MODEL
@@ -125,7 +125,7 @@ class Post(models.Model):
     content = models.TextField('内容', default='无内容')
     vote_count = models.PositiveIntegerField('喜欢', default=0)
 
-    comments = GenericRelation(Comment, related_query_name='post',)
+    comments = GenericRelation(RootComment, related_query_name='post',)
     comment_count = models.PositiveIntegerField('评论数', default=0)
     objects = models.Manager()
     public = PublicManager()

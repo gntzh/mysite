@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Post, Tag, Category
-from comment.admin import CommentInline
+from comment.admin import RootCommentInline
 
 
 @admin.register(Post)
@@ -22,7 +22,7 @@ class PostAdmin(admin.ModelAdmin):
     filter_horizontal = ('tags',)
 
     inlines = [
-        CommentInline,
+        RootCommentInline,
     ]
 
 
