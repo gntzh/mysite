@@ -32,6 +32,7 @@ class RootComment(BaseComment):
     object_id = models.PositiveIntegerField('被评论的实例id')
     # 集中content_type和object_id, 便于ORM操作, 但该字段不存储任何数据
     content_object = GenericForeignKey('content_type', 'object_id')
+    child_comment_count = models.PositiveIntegerField('二级评论数量', default=0)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -66,6 +67,9 @@ class ChildComment(BaseComment):
         if not self.pk:
             self.content_object.comment_count = F('comment_count') + 1
             self.content_object.save()
+            self.root_comment.child_comment_count = F(
+                'child_comment_count') + 1
+            self.root_comment.save()
         super().save(*args, **kwargs)
 
     class Meta:

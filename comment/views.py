@@ -12,7 +12,7 @@ from .utils.serializers import PostRootCommentSerializer, PostChildCommentSerial
 class PostRootCommentViewset(RetrieveModelMixin, ListModelMixin, CreateModelMixin, GenericViewSet):
     '''博文评论
     '''
-    permission_classes = ()
+    # permission_classes = ()
     queryset = RootComment.objects.filter(
         content_type=ContentType.objects.get_for_model(Post))
     serializer_class = PostRootCommentSerializer
@@ -32,3 +32,15 @@ class PostRootCommentViewset(RetrieveModelMixin, ListModelMixin, CreateModelMixi
 
         serializer = PostChildCommentSerializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class PostChildCommentViewset(RetrieveModelMixin, ListModelMixin, CreateModelMixin, GenericViewSet):
+    '''博文二级评论
+    '''
+    # permission_classes = ()
+    queryset = ChildComment.objects.all()
+    serializer_class = PostChildCommentSerializer
+    search_fields = ('name',)
+    filterset_fields = ('id', 'owner', 'root_comment', )
+    ordering_fields = ('created',)
+    ordering = '-created'
