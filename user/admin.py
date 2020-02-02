@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
+from .models import OUser
 
 User = get_user_model()
 
@@ -29,3 +30,9 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
     # add_form = UserCreationForm
+
+
+@admin.register(OUser)
+class OUserAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'identity_type', ]
+    list_filter = ['identity_type', ]

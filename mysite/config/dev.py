@@ -10,3 +10,10 @@ INTERNAL_IPS = ['127.0.0.1', ]
 SITE_HOST = 'http://127.0.0.1:8000'
 FRONT_HOST = 'http://127.0.0.1:8080'
 ALLOWED_HOSTS = ['shoor.xyz', '127.0.0.1', 'localhost', ]
+
+# Github登录
+GITHUB_APP_ID = '39a0b30fd1c6433d43e1'
+
+GITHUB_SECRET = '481a17f7e4186e2e9763b3fe7105205fd47366aa'
+
+# GITHUB_CALLBACK_URL = 'http://127.0.0.1:8080/user/login/github_check'  # code回调地址

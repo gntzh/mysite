@@ -10,6 +10,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r"users", views.UserViewSet)
+router.register(r'auth', views.ThirdPartyLogin, 'auth')
 
 urlpatterns = [
     path(r'', include(router.urls)),

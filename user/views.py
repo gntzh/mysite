@@ -1,10 +1,17 @@
+from django.contrib.auth import get_user_model
+from django.conf import settings
 from rest_framework.viewsets import GenericViewSet, ViewSet
 from rest_framework import mixins
 from rest_framework.decorators import action
+from rest_framework.reverse import reverse
 from rest_framework.views import Response, status
-from django.contrib.auth import get_user_model
+import requests
+from urllib.parse import urlencode
 
+from utils.jwt import get_tokens_for_user
 from utils.rest.mixins import ListModelMixin, RetrieveModelMixin
+from django.shortcuts import redirect
+from .models import OUser
 from . utils import verify, serializers, permissions
 
 User = get_user_model()
@@ -75,3 +82,53 @@ class UserViewSet(ListModelMixin,
             permission_classes=[permissions.IsOwnerOrAdmin])
     def changePassword(self, request, pk=None):
         return Response(['修改成功'])
+
+
+class ThirdPartyLogin(ViewSet):
+    @action(detail=False)
+    def github(self, request):
+        callback = request.query_params.get(
+            'callback', reverse('auth-github-callback', request=request))
+        state = request.query_params.get('state', settings.FRONT_HOST)
+        url = 'https://github.com/login/oauth/authorize'+'?' + \
+            urlencode({'client_id': '39a0b30fd1c6433d43e1',
+                       'redirect_uri': callback,
+                       'state': state,
+                       })
+        return redirect(url)
+
+    @action(detail=False)
+    def github_callback(self, request):
+        code = request.query_params.get('code')
+        if code is None:
+            return Response({'detail': '缺失查询参数code'}, status=status.HTTP_404_NOT_FOUND)
+
+        url = 'https://github.com/login/oauth/access_token'
+        params = {'code': code,
+                  'client_id': settings.GITHUB_APP_ID,
+                  'client_secret': settings.GITHUB_SECRET,
+                  }
+        res = requests.get(url, params=params, headers={
+            'accept': 'application/json'})
+
+        if res.status_code == 200 and not res.json().get('error', False):
+            res = requests.get('https://api.github.com/user', headers={
+                               'authorization': 'bearer ' + res.json().get('access_token')})
+            info = res.json()
+            ouser = OUser.objects.filter(
+                identifier=info['node_id'], identity_type='gh')
+            if ouser.exists():
+                u = ouser[0].user
+            else:
+                u = User.objects.create_user(username='gh_' + info['node_id'])
+                OUser(identifier=info['node_id'],
+                      identity_type='gh', user=u).save()
+            tokens = get_tokens_for_user(u)
+            return Response(tokens, status=status.HTTP_200_OK)
+
+        return Response({'detail': '无效code'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False)
+    def github_userinfo_callback(self, req):
+        print(req, req.query_params, dir(req))
+        return Response({'token': 'hhhhh'}, status=200)
