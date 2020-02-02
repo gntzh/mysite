@@ -84,12 +84,29 @@ class UserViewSet(ListModelMixin,
         return Response(['修改成功'])
 
 
+def check_state(state, expected_type):
+    '''state检查
+    state约定:identifier_type.redirect.random_value
+    '''
+    try:
+        identifier_type, redirect, random_value = state.split('.')
+    except (ValueError, AttributeError):
+        return False
+    if identifier_type != expected_type:
+        return False
+    return True
+
+
 class ThirdPartyLogin(ViewSet):
+
     @action(detail=False)
     def github(self, request):
         callback = request.query_params.get(
             'callback', reverse('auth-github-callback', request=request))
         state = request.query_params.get('state', settings.FRONT_HOST)
+        if not check_state(state, 'gh'):
+            return Response({'detail': '无效的state'}, status=status.HTTP_404_NOT_FOUND)
+
         url = 'https://github.com/login/oauth/authorize'+'?' + \
             urlencode({'client_id': '39a0b30fd1c6433d43e1',
                        'redirect_uri': callback,
@@ -106,7 +123,7 @@ class ThirdPartyLogin(ViewSet):
         url = 'https://github.com/login/oauth/access_token'
         params = {'code': code,
                   'client_id': settings.GITHUB_APP_ID,
-                  'client_secret': settings.GITHUB_SECRET,
+                  'client_secret': settings.GITHUB_APP_SECRET,
                   }
         res = requests.get(url, params=params, headers={
             'accept': 'application/json'})
