@@ -6,19 +6,18 @@ from utils.rest.validators import (
 
 
 class TagSerializer(ModelSerializer):
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     post_count = serializers.SerializerMethodField()
     posts = serializers.SerializerMethodField()
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'owner', 'post_count', 'posts']
-        read_only_fields = ('owner', )
+        fields = ['id', 'name', 'owner', 'owner_id', 'post_count', 'posts']
+        read_only_fields = ('owner_id', )
         extra_kwargs = {'owner': {'default': serializers.CurrentUserDefault()}}
 
     def get_post_count(self, row):
-        # 需queryset提供注解字段post_count
-        # return row.posts.count()
-        return row.post_count
+        return row.posts.count()
 
     def get_posts(self, row):
         return [{'id': post.id,
@@ -38,8 +37,8 @@ class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
         fields = ('id', 'name', 'parent', 'children',
-                  'owner', 'post_count', 'posts', 'is_leaf', 'siblings', )
-        read_only_fields = ('owner', )
+                  'owner', 'owner_id', 'post_count', 'posts', 'is_leaf', 'siblings', )
+        read_only_fields = ('owner_id', )
         extra_kwargs = {
             'parent': {'required': False, 'default': None, 'validators': (RelatedToOwnValidator(),)},
             'owner': {'default': serializers.CurrentUserDefault()},
@@ -68,8 +67,8 @@ class CategorySerializer(ModelSerializer):
                 for i in row.children.all()]
 
     def get_post_count(self, row):
-        # return row.post_count()
-        return row.post_count
+        # return getattr(row, 'post_count', row.posts.count())
+        return row.posts.count()
 
     def get_posts(self, row):
         # assert self.instance is row
@@ -84,6 +83,7 @@ class CategorySerializer(ModelSerializer):
 
 
 class PostSerializer(ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     author_display = serializers.SerializerMethodField()
     tags_display = serializers.SerializerMethodField()
     category_display = serializers.SerializerMethodField()
@@ -93,15 +93,14 @@ class PostSerializer(ModelSerializer):
         model = Post
         fields = ['id', 'title', 'author', 'author_id', 'author_display', 'is_public', 'allow_comments', 'created',
                   'updated', 'tags', 'tags_display', 'category', 'category_display', 'comment_count', 'excerpt', 'content', 'vote_count']
-        read_only_fields = ('created', 'updated', 'vote_count',
-                            'comment_count', 'author',)
+        read_only_fields = ('created', 'updated',
+                            'vote_count', 'comment_count', 'author',)
         extra_kwargs = {
             'created': {'format': '%Y-%m-%d %H:%M:%S'},
             'updated': {'format': '%Y-%m-%d %H:%M:%S'},
             'tags': {'write_only': True, 'validators': [RelatedToOwnValidator(True), M2MNumValidator(2), ]},
             'category': {'write_only': True, 'validators': [RelatedToOwnValidator(False), ]},
             'is_public': {'default': True},
-            'author': {'default': serializers.CurrentUserDefault(), },
         }
 
     def validate(self, data):
