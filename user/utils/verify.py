@@ -8,7 +8,8 @@ from django.conf import settings
 
 User = get_user_model()
 
-
+# TODO 移除DES生成验证code, 改为使用jwt
+# 不在依赖pyDes, 直接使用simplejwt
 def getDesMethod(user):
     key = bytes(str(user.created)[-16:-8], encoding='utf-8')
     iv = key

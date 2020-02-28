@@ -83,6 +83,12 @@ class UserViewSet(ListModelMixin,
     def changePassword(self, request, pk=None):
         return Response(['修改成功'])
 
+    
+    @action(detail=False, permission_classes=[permissions.IsAuthenticated])
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
+
 
 def check_state(state, expected_type):
     '''state检查
@@ -102,7 +108,7 @@ class ThirdPartyLogin(ViewSet):
     @action(detail=False)
     def github(self, request):
         callback = request.query_params.get(
-            'callback', reverse('auth-github-callback', request=request))
+            'callback', reverse('user:auth-github-callback', request=request))
         state = request.query_params.get('state', settings.FRONT_HOST)
         if not check_state(state, 'gh'):
             return Response({'detail': '无效的state'}, status=status.HTTP_404_NOT_FOUND)
@@ -122,7 +128,7 @@ class ThirdPartyLogin(ViewSet):
 
         url = 'https://github.com/login/oauth/access_token'
         params = {'code': code,
-                  'client_id': settings.GITHUB_APP_ID,
+                  'client_id': settings.GITHUB_APP_KEY,
                   'client_secret': settings.GITHUB_APP_SECRET,
                   }
         res = requests.get(url, params=params, headers={
