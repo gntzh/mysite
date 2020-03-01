@@ -14,7 +14,7 @@ class UserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'password', 'email', 'email_is_active',
-                  'nickname', 'last_login', 'avatar', 'sign', 'phone', 'is_staff']
+                  'last_login', 'avatar', 'sign', 'phone', 'is_staff']
         extra_kwargs = {
             'username': {'required': True},
             'password': {'write_only': True, 'required': True, 'help_text': '必填'},
@@ -37,7 +37,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'password', 'email', 'email_is_active',
-                  'nickname', 'last_login', 'avatar', 'phone']
+                  'last_login', 'avatar', 'phone']
         extra_kwargs = {
             'username': {'required': True},
             'password': {'write_only': True, 'required': True, 'help_text': '必填'},
@@ -61,7 +61,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'password', 'email',
-                  'nickname', 'avatar', 'phone', 'old_password']
+                  'avatar', 'phone', 'old_password']
         extra_kwargs = {
             'password': {'required': False},
             'email': {'label': '邮箱', 'required': False},
