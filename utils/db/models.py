@@ -3,7 +3,7 @@ from django.db.models.query import QuerySet
 from django.utils import timezone
 
 
-class TimeStampMixin:
+class TimeMixin:
     created_at = models.DateTimeField("创建时间", default=timezone.now)
     updated_at = models.DateTimeField("修改时间")
 

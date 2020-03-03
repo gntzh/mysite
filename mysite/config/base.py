@@ -11,12 +11,15 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import sys
 from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))))
+import apps.newpneumonia
+# sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -50,6 +53,7 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'comment.apps.CommentConfig',
     'picture.apps.PictureConfig',
+    'apps.newpneumonia.apps.NewpneumoniaConfig',
 
 ]
 

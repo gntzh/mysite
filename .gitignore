@@ -156,3 +156,5 @@ log/
 
 # whoosh索引文件
 whoosh_index/
+global.json
+others.json
