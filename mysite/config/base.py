@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'django_filters',
     'debug_toolbar',
     'corsheaders',
-    'haystack',
+    'mptt',
     # Costumed App
     'blog.apps.BlogConfig',
     'user.apps.UserConfig',
@@ -246,13 +246,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 ## 二元元组的第一项为模型的app, 第二项为模型的名称, 分别对应django_content_type表中的app_label和model
 ALLOW_COMMENTS_MODELS = [('blog', 'post'), ('user', 'user'), ]
 
-# django-haystack
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        # 'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'ENGINE': 'utils.search.whoosh_cn_backend.WhooshEngine',
-        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
-    },
-}
-# 实时(模型实例调用saved/deleted)更新index, 性能低(Elasticsearch或许负担得起)
-# HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+# 搜索索引
+INDEX_DIR = os.path.join(BASE_DIR, 'search_index')

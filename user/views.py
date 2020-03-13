@@ -13,6 +13,7 @@ from utils.rest.mixins import ListModelMixin, RetrieveModelMixin
 from django.shortcuts import redirect
 from .models import OUser
 from . utils import verify, serializers, permissions
+from .utils.serializers import UserCreateSerializer
 
 User = get_user_model()
 
@@ -60,6 +61,18 @@ class UserViewSet(ListModelMixin,
     one_included = many_included = (
         'id', 'username', 'nickname', 'avatar', 'sign')
 
+    @action(detail=False, methods=['post'], permission_classes=())
+    def sign_up(self, request):
+        request.data['email_is_active'] = False
+        serializer = UserCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        user = serializer.instance
+        tokens = get_tokens_for_user(user)
+        data = serializer.data
+        data['tokens'] = tokens
+        return Response(data, status=status.HTTP_201_CREATED)
+
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(
@@ -83,7 +96,6 @@ class UserViewSet(ListModelMixin,
     def changePassword(self, request, pk=None):
         return Response(['修改成功'])
 
-    
     @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def me(self, request):
         serializer = self.get_serializer(request.user)

@@ -145,6 +145,9 @@ media/
 # VS Code
 .vscode/
 
+# VS
+.vs/
+
 # PyCharm
 .idea/
 
@@ -156,5 +159,6 @@ log/
 
 # whoosh索引文件
 whoosh_index/
-global.json
-others.json
+search_index/
+
+*.ipynb

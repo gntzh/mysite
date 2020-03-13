@@ -1,0 +1,5 @@
+{{ object.title }}
+{{ object.author.username }}
+{{ object.category.name }}
+{% for t in object.tags.all %}{{ t.name }} {% endfor %}
+{{ object.content }}

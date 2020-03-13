@@ -6,15 +6,16 @@ from utils.rest.validators import (
 
 
 class TagSerializer(ModelSerializer):
-    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    created_by = serializers.HiddenField(
+        default=serializers.CurrentUserDefault())
     post_count = serializers.SerializerMethodField()
     posts = serializers.SerializerMethodField()
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'owner', 'owner_id', 'post_count', 'posts']
-        read_only_fields = ('owner_id', )
-        extra_kwargs = {'owner': {'default': serializers.CurrentUserDefault()}}
+        fields = ['id', 'name', 'post_count', 'posts', 'created_by']
+        read_only_fields = ()
+        extra_kwargs = {}
 
     def get_post_count(self, row):
         return row.posts.count()
@@ -27,44 +28,15 @@ class TagSerializer(ModelSerializer):
 
 
 class CategorySerializer(ModelSerializer):
-    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
     post_count = serializers.SerializerMethodField()
     posts = serializers.SerializerMethodField()
-    siblings = serializers.SerializerMethodField()
-    children = serializers.SerializerMethodField()
-    is_leaf = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'parent', 'children',
-                  'owner', 'owner_id', 'post_count', 'posts', 'is_leaf', 'siblings', )
-        read_only_fields = ('owner_id', )
-        extra_kwargs = {
-            'parent': {'required': False, 'default': None, 'validators': (RelatedToOwnValidator(),)},
-            'owner': {'default': serializers.CurrentUserDefault()},
-        }
-        validators = [UniqueTogetherValidator(
-            Category.objects.all(), ['name', 'parent', 'owner']),
-            UniqueTogetherValidator(
-            Category.objects.filter(parent__isnull=True), ['name', 'parent', 'owner']),
-            RecursiveRelationValidator()
-        ]
-
-    def get_siblings(self, row):
-        if row.parent is None:
-            siblings = Category.objects.filter(
-                parent__isnull=True, owner=row.owner.id).only('name')
-        else:
-            siblings = Category.objects.filter(
-                parent=row.parent.id, owner=row.owner.id).only('name')
-        return [{'id': i.id,
-                 'name': i.name, }
-                for i in siblings]
-
-    def get_children(self, row):
-        return [{'id': i.id,
-                 'name': i.name, }
-                for i in row.children.all()]
+        fields = ('id', 'name', 'post_count', 'posts', 'description')
+        read_only_fields = ()
+        extra_kwargs = {}
+        validators = []
 
     def get_post_count(self, row):
         # return getattr(row, 'post_count', row.posts.count())
@@ -78,9 +50,6 @@ class CategorySerializer(ModelSerializer):
                  }
                 for post in row.posts.all()]
 
-    def get_is_leaf(self, row):
-        return row.isLeaf()
-
 
 class PostSerializer(ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
@@ -88,13 +57,14 @@ class PostSerializer(ModelSerializer):
     tags_display = serializers.SerializerMethodField()
     category_display = serializers.SerializerMethodField()
     excerpt = serializers.SerializerMethodField()
+    liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'author', 'author_id', 'author_display', 'is_public', 'allow_comments', 'created',
-                  'updated', 'tags', 'tags_display', 'category', 'category_display', 'comment_count', 'excerpt', 'content', 'vote_count']
+        fields = ('id', 'title', 'author', 'author_id', 'author_display', 'is_public', 'allow_comments', 'created',
+                  'updated', 'tags', 'tags_display', 'category', 'category_display', 'comment_count', 'excerpt', 'content', 'like_count', 'liked')
         read_only_fields = ('created', 'updated',
-                            'vote_count', 'comment_count', 'author',)
+                            'vote_count', 'comment_count', 'author', 'like_count')
         extra_kwargs = {
             'created': {'format': '%Y-%m-%d %H:%M:%S'},
             'updated': {'format': '%Y-%m-%d %H:%M:%S'},
@@ -128,5 +98,13 @@ class PostSerializer(ModelSerializer):
     def get_author_display(self, row):
         return {'id': row.author.id, 'username': row.author.username}
 
-    def get_excerpt(self, row):
-        return row.excerpt()
+    def get_excerpt(self, obj):
+        return obj.excerpt()
+
+    def get_liked(self, obj):
+        request = self.context.get('request', None)
+        if request is None:
+            return False
+        if request.user.is_anonymous:
+            return False
+        return obj.likes.filter(pk=request.user.pk).exists()

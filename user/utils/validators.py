@@ -32,7 +32,8 @@ def checkOldPwd(data):
 def CheckUsername(data):
     username = data.get('username', None)
     if username is not None:
-        illegal_name = ['admin', 'sure', 'sure.z', 'sure.zh', 'django', 'shoor', 'shoorday']
+        illegal_name = ['admin', 'sure', 'sure.z',
+                        'sure.zh', 'django', 'shoor', 'shoorday']
         if username.lower() in illegal_name:
             raise ValidationError('用户名已被使用')
     return data

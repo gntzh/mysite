@@ -25,4 +25,4 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
     # 在SearchField的prepare方法调用后被调用, 可以访问self.prepare_data
     # prepare(self, object)方法用于返回最后的数据, 应返回一个字典
     def prepare_author(self, obj):
-        return obj.author.nickname or obj.author.username
+        return obj.author.username

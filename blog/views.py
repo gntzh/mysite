@@ -1,8 +1,13 @@
-from haystack.query import EmptySearchQuerySet, SearchQuerySet
+from whoosh.qparser import QueryParser
+from django.conf import settings
 from django.db.models import Count
+from django_filters.rest_framework import DjangoFilterBackend
 from django.http import Http404, JsonResponse
+from mptt.utils import get_cached_trees
 from rest_framework import status
 from rest_framework.decorators import action, api_view
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.viewsets import GenericViewSet, ViewSet
@@ -10,10 +15,14 @@ from rest_framework.viewsets import GenericViewSet, ViewSet
 from utils.rest.mixins import drf as mixins, ListModelMixin, RetrieveModelMixin, ExistsModelMixin
 from utils.rest.permissions import isOwnerOrReadOnly
 from utils.shortcuts import get_object_or_404
+from utils.tools import get_tree
+from utils.search.backend import SearchBackend, highlighter
 
-from .models import Post, Tag, Category
+
+from .search import PostModel
+from .models import Post, Tag, Category, PostLike
 from .utils.serializers import PostSerializer, TagSerializer, CategorySerializer
-from .utils import pagination, filters
+from .utils import pagination
 
 
 class PostViewSet(
@@ -26,7 +35,7 @@ class PostViewSet(
     permission_classes = (isOwnerOrReadOnly('author'), )
     serializer_class = PostSerializer
     queryset = Post.public.select_related(
-        'category', 'category__parent', 'author', ).prefetch_related('tags')
+        'category',  'author', ).prefetch_related('tags')
     pagination_class = pagination.PostPagination
 
     filterset_fields = ('tags', 'category', 'author', )
@@ -49,6 +58,21 @@ class PostViewSet(
             queryset, many=True, excluded=('is_public',))
         return Response(serializer.data)
 
+    @action(detail=True, methods=('post', 'delete'), permission_classes=(IsAuthenticatedOrReadOnly, ))
+    def like(self, request, pk):
+        post = self.get_object()
+        included = set(
+            self.many_included or request.query_params.getlist('included')) or None
+        excluded = set(request.query_params.getlist(
+            'excluded')) | set(self.many_excluded or ())
+
+        if request.method == 'POST':
+            post.likes.add(request.user)
+        else:
+            post.likes.remove(request.user)
+
+        return Response({'like_count': post.likes.count()})
+
 
 class TagViewSet(
         mixins.CreateModelMixin,
@@ -58,37 +82,18 @@ class TagViewSet(
         ListModelMixin,
         ExistsModelMixin,
         GenericViewSet):
-    permission_classes = (isOwnerOrReadOnly(), )
     serializer_class = TagSerializer
-    queryset = Tag.objects.select_related(
-        'owner').prefetch_related('posts').annotate(post_count=Count('post'))
+    queryset = Tag.objects.prefetch_related(
+        'posts').annotate(post_count=Count('post'))
     pagination_class = pagination.Pagination
 
-    filter_backends = [filters.filters.DjangoFilterBackend,
-                       filters.drf_filters.SearchFilter, filters.drf_filters.OrderingFilter]
-    filterset_fields = ('id', 'name', 'owner', )
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ('id', 'name', )
     search_fields = ('name', )
     ordering_fields = ('post_count', )
     ordering = 'id'
 
     many_excluded = ('posts',)
-
-
-defer = ["last_login",
-         "is_superuser",
-         "first_name",
-         "last_name",
-         "is_staff",
-         "date_joined",
-         "nickname",
-         "avatar",
-         "phone",
-         "email",
-         "is_active",
-         "email_is_active",
-         "created",
-         "sign",
-         "password", ]
 
 
 class CategoryViewSet(
@@ -98,57 +103,53 @@ class CategoryViewSet(
         mixins.DestroyModelMixin,
         ListModelMixin,
         GenericViewSet):
-    permission_classes = (isOwnerOrReadOnly(), )
+    permission_classes = (IsAuthenticatedOrReadOnly, )
     serializer_class = CategorySerializer
-    queryset = Category.objects.select_related('owner', 'parent').prefetch_related(
-        'posts', 'children', ).defer(*('owner__' + i for i in defer)).annotate(post_count=Count('post'))
+    queryset = Category.objects.all()
     pagination_class = pagination.Pagination
 
-    filter_backends = [filters.filters.DjangoFilterBackend,
-                       filters.drf_filters.SearchFilter,
-                       filters.drf_filters.OrderingFilter]
-    filterset_class = filters.CategoryFilter
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
     search_fields = ('name',)
     ordering_fields = ('post_count', )
     ordering = 'id'
 
-    many_excluded = ('posts', 'children', 'siblings', )
+    many_excluded = ('posts', )
     one_excluded = ('siblings', )
 
-    @action(detail=True, url_path='display', url_name='display', permission_classes=[])
-    def display(self, request, *args, **kwargs):
-        '''
-        用于前端树形控件展示分类
-        '''
-        included = ('name',)
-        try:
-            cates = CategorySerializer(self.queryset.filter(
-                parent=kwargs['pk']), included=('id', 'name', 'is_leaf'), many=True)
-            posts = PostSerializer(Post.objects.filter(
-                category=kwargs['pk']), included=('id', 'title', ), many=True)
-        except (TypeError, ValueError):
-            raise Http404
-        return Response(cates.data + posts.data)
+    @action(detail=False)
+    def tree(self, request):
+        roots = get_cached_trees(
+            Category.objects.all())
+        return Response(data=[get_tree(root, ('id', 'name', )) for root in roots])
 
-# TODO 搜索高亮
+    @action(detail=True, url_path='tree')
+    def one_tree(self, request, pk):
+        obj = get_object_or_404(self.queryset, pk=pk)
+        root = get_cached_trees(obj.get_descendants(
+            include_self=True))
+        return Response(data=get_tree(root[0], ('id', 'name', )))
+
+
+pm = PostModel()
+backend = SearchBackend(pm, settings.INDEX_DIR, pm.indexname)
+
+parser = QueryParser('text', schema=backend.schema)
+
+
 @api_view(['GET'])
-def search(request, load_all=True,  searchqueryset=None):
-    results = EmptySearchQuerySet()
-
-    if request.GET.get('q'):
-        query = request.GET.get('q')
-        print(query)
-        if searchqueryset is None:
-            searchqueryset = SearchQuerySet()
-        sqs = searchqueryset.models(Post).auto_query(request.GET.get('q'))
-        sqs = sqs.load_all()
-        results = sqs.highlight()
+def search(request):
+    q = request.GET.get('q')
+    if q is not None:
+        with backend.index.searcher() as s:
+            results = s.search_page(parser.parse(q), 1, pagelen=20, terms=True)
+            data = []
+            for hit in results:
+                data.append({
+                    'pk': hit['pk'],
+                    'title': highlighter.highlight_hit_whole(hitobj=hit, fieldname='text', text=hit['title']) or hit['title'],
+                    'content': highlighter.highlight_hit(hit, 'text', hit['content']) or hit['content'][10:200]
+                })
+            return Response(data)
     else:
-        raise Http404('缺少查询参数q')
-
-    # print(results)
-    # print(dir(results))
-    # print(results[0].title, results[0].pk, results[0].author)
-    # se = PostSerializer(results, many=True, included=('title', ))
-    # print(se.data)
-    return Response(data=[i.highlighted['text'][0] for i in results])
+        return Response({'detail': '缺少查询参数q'}, status=400)
