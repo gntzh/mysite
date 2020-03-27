@@ -1,8 +1,11 @@
 from . import validators
-from ..models import Post, Tag, Category
+from ..models import *
+from user.utils.serializers import UserInfoSerializer
 from utils.rest.serializers import drf as serializers, ModelSerializer
 from utils.rest.validators import (
     RelatedToOwnValidator, UniqueTogetherValidator, M2MNumValidator, RecursiveRelationValidator)
+
+# TODO 取消author_display字段, 改为author和author_配合
 
 
 class TagSerializer(ModelSerializer):
@@ -68,15 +71,13 @@ class PostSerializer(ModelSerializer):
         extra_kwargs = {
             'created': {'format': '%Y-%m-%d %H:%M:%S'},
             'updated': {'format': '%Y-%m-%d %H:%M:%S'},
-            'tags': {'write_only': True, 'validators': [RelatedToOwnValidator(True), M2MNumValidator(2), ]},
-            'category': {'write_only': True, 'validators': [RelatedToOwnValidator(False), ]},
+            'tags': {'write_only': True, },
+            'category': {'write_only': True, },
             'is_public': {'default': True},
         }
 
     def validate(self, data):
         if data.get('tags', False):
-            RelatedToOwnValidator(True)(
-                data['tags'], self.fields['tags'])
             M2MNumValidator(10)(data['tags'], self.fields['tags'])
         return data
 
@@ -95,8 +96,8 @@ class PostSerializer(ModelSerializer):
     def get_tags_display(self, row):
         return ({'id': tag.id, 'name': tag.name} for tag in row.tags.all())
 
-    def get_author_display(self, row):
-        return {'id': row.author.id, 'username': row.author.username}
+    def get_author_display(self, instance):
+        return UserInfoSerializer(instance.author).data
 
     def get_excerpt(self, obj):
         return obj.excerpt()
@@ -108,3 +109,45 @@ class PostSerializer(ModelSerializer):
         if request.user.is_anonymous:
             return False
         return obj.likes.filter(pk=request.user.pk).exists()
+
+
+class CommentSerializer(ModelSerializer):
+    author_ = serializers.HiddenField(
+        source='author', default=serializers.CurrentUserDefault())
+    author = serializers.SerializerMethodField()
+    child_count = serializers.SerializerMethodField()
+    reply_to_author = serializers.SerializerMethodField()
+    # children = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = (
+            'author', 'author_', 'child_count',  'content', 'created', 'id', 'parent', 'post', 'reply_to', 'reply_to_author', 'like_count'
+        )
+
+    def get_author(self, instance):
+        return UserInfoSerializer(instance.author).data
+
+    def get_child_count(self, instance):
+        return instance.children.count()
+
+    def get_children(self, instance):
+        return [{
+            'id': child.id,
+            'content': child.content,
+            'created': child.created,
+            'author': UserInfoSerializer(child.author).data
+        } for child in instance.children.all()[:5]]
+
+    def get_reply_to_author(self, instance):
+        if instance.parent is not None:
+            return UserInfoSerializer(instance.parent.author).data
+        return None
+
+
+class LocalPostSerializer(PostSerializer):
+
+    class Meta:
+        model = Post
+        fields = ('id', 'title', 'author', 'is_public', 'allow_comments', 'created',
+                  'updated', 'tags', 'category', 'comment_count', 'content', )

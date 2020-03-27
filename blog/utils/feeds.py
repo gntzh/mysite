@@ -30,13 +30,13 @@ class PostFeed(Feed):
         return User.objects.get(id=user_id)
 
     def title(self, user):
-        return '%s最近更新文章' % user.nickname or user.username
+        return '%s最近更新文章' % user.username
 
     def link(self, user):
         return '%s/user/%d' % (settings.FRONT_HOST, user.id)
 
     def description(self, user):
-        return '%s的文章' % user.nickname or user.username
+        return '%s的文章' % user.username
 
     def items(self, user):
         return Post.public.filter(author=user).order_by('-created')[:20]

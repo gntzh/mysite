@@ -73,3 +73,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             user.save()
             return user
         return super().update(instance, validated_data)
+
+
+class UserInfoSerializer(ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'avatar', ]

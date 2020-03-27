@@ -4,7 +4,10 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q, F
+from django.utils import timezone
 from django.utils.functional import cached_property
+
+User = settings.AUTH_USER_MODEL
 
 allow_comments_models = Q()
 
@@ -122,6 +125,58 @@ class Comment(models.Model):
         if not self.pk:
             self.content_type.get_all_objects_for_this_type(
                 id=self.object_id).update(comment_count=F('comment_count')+1)
+        if self.more_than_2():
+            self.parent = self.parent.parent
+        super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+        verbose_name = '评论'
+        verbose_name_plural = verbose_name
+        default_related_name = 'comments'
+
+    def __str__(self):
+        return "<Comment(%s): %s>" % (self.id, self.content[:8])
+
+
+class BaseComment(models.Model):
+    object_field = None
+
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name='评论人')
+    created = models.DateTimeField('评论时间', default=timezone.now)
+    content = models.TextField('内容', max_length=1024)
+    like_count = models.PositiveIntegerField('点赞', default=0)
+
+    parent = models.ForeignKey('self', blank=True, null=True, default=None, on_delete=models.CASCADE,
+                               related_query_name='child', related_name='children', verbose_name='父级评论',)
+    reply_to = models.ForeignKey('self', blank=True, null=True, default=None,
+                                 on_delete=models.CASCADE, related_name='replies', related_query_name='reply')
+
+    def clean(self):
+        errors = {}
+        # 检查与父级评论是否对同一对象评论
+        if self.parent is not None:
+            if getattr(self, self.object_field) != getattr(self.parent, self.object_field):
+                errors = ValidationError(
+                    '子评论应与父评论对同一对象:父级评论%s' % getattr(self, self.object_field)).update_error_dict(errors)
+        if errors:
+            raise ValidationError(errors)
+
+    def more_than_2(self):
+        """检查是否超过二级
+        """
+        # if self.pk:
+        #     return Comment.objects.filter(Q(pk=self.pk) & (Q(parent__isnull=True) | Q(parent__parent__isnull=True))).exists()
+        # else:
+        #     return bool(self.parent is None or self.parent.parent is None)
+        return self.parent is not None and self.parent.parent is not None
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            obj = getattr(self, self.object_field)
+            obj.comment_count += 1
+            obj.save()
         if self.more_than_2():
             self.parent = self.parent.parent
         super().save(*args, **kwargs)

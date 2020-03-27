@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import Http404, JsonResponse
+from django.utils.decorators import method_decorator
 from mptt.utils import get_cached_trees
 from rest_framework import status
 from rest_framework.decorators import action, api_view
@@ -12,17 +13,18 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.viewsets import GenericViewSet, ViewSet
 
+from utils.decorators import params
 from utils.rest.mixins import drf as mixins, ListModelMixin, RetrieveModelMixin, ExistsModelMixin
 from utils.rest.permissions import isOwnerOrReadOnly
+from utils.search.backend import SearchBackend, highlighter
 from utils.shortcuts import get_object_or_404
 from utils.tools import get_tree
-from utils.search.backend import SearchBackend, highlighter
 
 
 from .search import PostModel
-from .models import Post, Tag, Category, PostLike
-from .utils.serializers import PostSerializer, TagSerializer, CategorySerializer
-from .utils import pagination
+from .models import *
+from .utils.serializers import PostSerializer, TagSerializer, CategorySerializer, CommentSerializer, LocalPostSerializer
+from .utils.pagination import CommentPagination, Pagination, PostPagination
 
 
 class PostViewSet(
@@ -36,7 +38,7 @@ class PostViewSet(
     serializer_class = PostSerializer
     queryset = Post.public.select_related(
         'category',  'author', ).prefetch_related('tags')
-    pagination_class = pagination.PostPagination
+    pagination_class = PostPagination
 
     filterset_fields = ('tags', 'category', 'author', )
     search_fields = ('title', 'content', )
@@ -73,6 +75,38 @@ class PostViewSet(
 
         return Response({'like_count': post.likes.count()})
 
+    @action(detail=False, methods=('post', ),)
+    def from_local(self, request):
+        data = request.data.copy()
+        id = request.data.get('id')
+        categories = data.pop('categories', [])
+        category = None
+        for level, c in enumerate(categories):
+            cate = Category.objects.filter(name__iexact=c, level=level).first()
+            if cate is None:
+                break
+            else:
+                category = cate.pk
+        data['category'] = category
+
+        tags = []
+        for t in data.pop('tags', []):
+            tag = Tag.objects.filter(name__iexact=t).first()
+            if tag is not None:
+                tags.append(tag.pk)
+        data.setlist('tags', tags)
+        if id is None:
+            serializer = LocalPostSerializer(
+                data=data, context=self.get_serializer_context())
+        else:
+            post = get_object_or_404(Post, pk=id)
+            serializer = LocalPostSerializer(
+                post, data=data, context=self.get_serializer_context())
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class TagViewSet(
         mixins.CreateModelMixin,
@@ -85,7 +119,7 @@ class TagViewSet(
     serializer_class = TagSerializer
     queryset = Tag.objects.prefetch_related(
         'posts').annotate(post_count=Count('post'))
-    pagination_class = pagination.Pagination
+    pagination_class = Pagination
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ('id', 'name', )
@@ -106,7 +140,7 @@ class CategoryViewSet(
     permission_classes = (IsAuthenticatedOrReadOnly, )
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
-    pagination_class = pagination.Pagination
+    pagination_class = Pagination
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
 
@@ -133,7 +167,6 @@ class CategoryViewSet(
 
 pm = PostModel()
 backend = SearchBackend(pm, settings.INDEX_DIR, pm.indexname)
-
 parser = QueryParser('text', schema=backend.schema)
 
 
@@ -153,3 +186,18 @@ def search(request):
             return Response(data)
     else:
         return Response({'detail': '缺少查询参数q'}, status=400)
+
+
+class CommentViewSet(
+        mixins.CreateModelMixin,
+        mixins.RetrieveModelMixin,
+        mixins.ListModelMixin,
+        GenericViewSet):
+    queryset = Comment.objects.all()
+    permission_classes = []
+    serializer_class = CommentSerializer
+    pagination_class = CommentPagination
+
+    filterset_fields = ['post', 'parent', 'reply_to', 'author', ]
+    search_fields = ['content', ]
+    ordering = 'id'

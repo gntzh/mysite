@@ -1,7 +1,7 @@
 from django.contrib import admin
 from mptt.admin import DraggableMPTTAdmin
 from comment.admin import RootCommentInline
-from .models import Post, Tag, Category, PostLike
+from .models import *
 
 
 class PostLikesInline(admin.TabularInline):
@@ -67,3 +67,8 @@ class TagAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('name', )}),
     )
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    pass

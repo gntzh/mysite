@@ -2,8 +2,10 @@ from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
-from comment.models import RootComment
 from mptt.models import MPTTModel, TreeForeignKey
+from django.utils import timezone
+
+from comment.models import BaseComment
 
 User = settings.AUTH_USER_MODEL
 
@@ -57,8 +59,8 @@ class Post(models.Model):
                                verbose_name='作者')
     is_public = models.BooleanField('是否公开', default=True)
     allow_comments = models.BooleanField('是否允许评论', default=True)
-    created = models.DateTimeField('发布时间', auto_now_add=True)
-    updated = models.DateTimeField('最近修改', auto_now=True)
+    created = models.DateTimeField('发布时间', default=timezone.now)
+    updated = models.DateTimeField('最近修改', default=timezone.now)
     category = models.ForeignKey('Category',
                                  on_delete=models.SET_DEFAULT,
                                  verbose_name='分类',
@@ -75,7 +77,6 @@ class Post(models.Model):
 
     need_index = models.BooleanField('更新搜索索引', default=True)
 
-    comments = GenericRelation(RootComment, related_query_name='post',)
     comment_count = models.PositiveIntegerField('评论数', default=0)
     objects = models.Manager()
     public = PublicManager()
@@ -104,3 +105,11 @@ class PostLike(models.Model):
 
     def __str__(self):
         return '{} 点赞了 {}'.format(self.user, self.post)
+
+
+class Comment(BaseComment):
+    object_field = 'post'
+    post = models.ForeignKey(Post, models.CASCADE)
+
+
+__all__ = ['Category', 'Comment', 'Post', 'PostLike', 'Tag', ]
