@@ -12,7 +12,7 @@ User = get_user_model()
 class UserAdmin(BaseUserAdmin):
     nickname = models.CharField(max_length=32, default='', verbose_name='昵称')
     fieldsets = (
-        (None, {'fields': ('username', 'password',
+        (None, {'fields': ('username', 'password', 'avatar',
                            ('email', 'email_is_active'), 'phone')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),

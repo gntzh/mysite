@@ -58,14 +58,14 @@ class PostSerializer(ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     author_display = serializers.SerializerMethodField()
     tags_display = serializers.SerializerMethodField()
-    category_display = serializers.SerializerMethodField()
+    categories = serializers.SerializerMethodField()
     excerpt = serializers.SerializerMethodField()
     liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = ('id', 'title', 'author', 'author_id', 'author_display', 'is_public', 'allow_comments', 'created',
-                  'updated', 'tags', 'tags_display', 'category', 'category_display', 'comment_count', 'excerpt', 'content', 'like_count', 'liked')
+                  'updated', 'tags', 'tags_display', 'category', 'categories', 'comment_count', 'excerpt', 'cover', 'content', 'like_count', 'liked')
         read_only_fields = ('created', 'updated',
                             'vote_count', 'comment_count', 'author', 'like_count')
         extra_kwargs = {
@@ -81,8 +81,9 @@ class PostSerializer(ModelSerializer):
             M2MNumValidator(10)(data['tags'], self.fields['tags'])
         return data
 
-    def get_category_display(self, row):
+    def get_categories(self, row):
         if row.category is not None:
+            return [{'id': c.id, 'name': c.name} for c in row.category.get_ancestors(include_self=True)]
             return {"id": row.category.id, "name": row.category.name}
         return None
         # res = []
@@ -150,4 +151,4 @@ class LocalPostSerializer(PostSerializer):
     class Meta:
         model = Post
         fields = ('id', 'title', 'author', 'is_public', 'allow_comments', 'created',
-                  'updated', 'tags', 'category', 'comment_count', 'content', )
+                  'updated', 'tags', 'category', 'cover', 'content', )

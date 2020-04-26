@@ -70,7 +70,10 @@ class Post(models.Model):
                                  null=True)
     tags = models.ManyToManyField(
         'Tag', blank=True, related_query_name='post', verbose_name='标签')
+    cover = models.URLField('题图', max_length=256,
+                            blank=True, null=True, default=None)
     content = models.TextField('内容', default='无内容')
+
     likes = models.ManyToManyField(
         User, through='PostLike', related_name='liked_posts', verbose_name='点赞')
     like_count = models.PositiveIntegerField('点赞量', default=0)
@@ -78,6 +81,7 @@ class Post(models.Model):
     need_index = models.BooleanField('更新搜索索引', default=True)
 
     comment_count = models.PositiveIntegerField('评论数', default=0)
+
     objects = models.Manager()
     public = PublicManager()
 

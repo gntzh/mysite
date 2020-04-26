@@ -19,33 +19,33 @@ User = get_user_model()
 
 
 class VerifyEmailViewSet(ViewSet):
-    permission_classes = [permissions.IsAuthenticated]
 
+    @action(['post'], detail=False, permission_classes=[permissions.IsAuthenticated])
     def sendVerifyEmail(self, request):
         data = {}
         user = request.user
         if not user.email:
-            data['message'] = '用户未添加邮箱'
+            data['msg'] = '用户未添加邮箱'
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
         verify_url = verify.generateVerifyEmailUrl(user)
-        # verify.sendVerifyEmail.delay(user, verify_url)
         verify.sendVerifyEmail(user, verify_url)
-        data['message'] = '已发送邮件'
+        data['msg'] = '已发送邮件'
         return Response(data, status=status.HTTP_200_OK)
 
+    @action(detail=False, permission_classes=())
     def checkVerifyEmailUrl(self, request):
         data = {}
         key = request.GET.get('key', None)
         if not key:
-            data['message'] = '无效的链接, 缺失key'
+            data['msg'] = '无效的链接, 缺失key'
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
         is_success, user = verify.checkVerifyEmailUrl(key)
         if is_success:
             user.email_is_active = True
             user.save()
-            data['message'] = '验证成功'
+            data['msg'] = '验证成功'
             return Response(data)
-        data['message'] = '验证失败'
+        data['msg'] = '验证失败'
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -155,7 +155,8 @@ class ThirdPartyLogin(ViewSet):
             if ouser.exists():
                 u = ouser[0].user
             else:
-                u = User.objects.create_user(username='gh_' + info['node_id'])
+                u = User.objects.create_user(
+                    'gh_' + info['node_id'], avatar=info['avatar_url'])
                 OUser(identifier=info['node_id'],
                       identity_type='gh', user=u).save()
             tokens = get_tokens_for_user(u)

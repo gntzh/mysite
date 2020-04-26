@@ -27,8 +27,9 @@ class PostAdmin(admin.ModelAdmin):
 
     fieldsets = [
         (None, {'fields': ('title', 'author')}),
-        (None, {'fields': (('is_public', 'allow_comments'),
-                           ('comment_count'), 'category', 'tags')}),
+        (None, {'fields': (('created', 'updated'),
+                           ('is_public', 'allow_comments'),
+                           ('comment_count'), 'category', 'tags', 'cover')}),
         ('内容', {'fields': ('content',)})
     ]
     filter_horizontal = ('tags',)
