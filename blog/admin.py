@@ -66,7 +66,7 @@ class TagAdmin(admin.ModelAdmin):
     search_fields = ('name', )
 
     fieldsets = (
-        (None, {'fields': ('name', )}),
+        (None, {'fields': ('name', 'created_by')}),
     )
 
 

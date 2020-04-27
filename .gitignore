@@ -162,3 +162,10 @@ whoosh_index/
 search_index/
 
 *.ipynb
+
+# 生成的部署文件
+uwsgi.ini
+nginx.conf
+
+# redis dump
+*.rdb

@@ -1,52 +1,67 @@
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.shortcuts import redirect
+import requests
 from rest_framework.viewsets import GenericViewSet, ViewSet
 from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.reverse import reverse
 from rest_framework.views import Response, status
-import requests
+from rest_framework_simplejwt.tokens import Token, TokenError
 from urllib.parse import urlencode
 
 from utils.jwt import get_tokens_for_user
 from utils.rest.mixins import ListModelMixin, RetrieveModelMixin
 from django.shortcuts import redirect
 from .models import OUser
-from . utils import verify, serializers, permissions
+from .utils import serializers, permissions
 from .utils.serializers import UserCreateSerializer
+from . import tasks
 
 User = get_user_model()
+
+
+class EmailVerifyToken(Token):
+    token_type = 'email_verify'
+    lifetime = timedelta(minutes=15)
 
 
 class VerifyEmailViewSet(ViewSet):
 
     @action(['post'], detail=False, permission_classes=[permissions.IsAuthenticated])
-    def sendVerifyEmail(self, request):
+    def send_verify_url(self, request):
         data = {}
         user = request.user
         if not user.email:
             data['msg'] = '用户未添加邮箱'
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
-        verify_url = verify.generateVerifyEmailUrl(user)
-        verify.sendVerifyEmail(user, verify_url)
+        verify_url = '%s/api-user/verify_email?key=%s' % (
+            settings.SITE_HOST, EmailVerifyToken.for_user(user))
+        tasks.send_verify_email.delay(
+            {'username': user.username, 'email': user.email, 'verify_url': verify_url})
         data['msg'] = '已发送邮件'
         return Response(data, status=status.HTTP_200_OK)
 
     @action(detail=False, permission_classes=())
-    def checkVerifyEmailUrl(self, request):
+    def check_verify_Url(self, request):
         data = {}
         key = request.GET.get('key', None)
         if not key:
             data['msg'] = '无效的链接, 缺失key'
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
-        is_success, user = verify.checkVerifyEmailUrl(key)
-        if is_success:
+        try:
+            token = EmailVerifyToken(key)
+        except TokenError:
+            data['msg'] = '验证失败'
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            user = User.objects.get(id=token['user_id'])
             user.email_is_active = True
             user.save()
             data['msg'] = '验证成功'
             return Response(data)
-        data['msg'] = '验证失败'
-        return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(ListModelMixin,
