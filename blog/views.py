@@ -48,6 +48,9 @@ class PostViewSet(
     many_excluded = ('content', 'is_public', )
     one_excluded = ('excerpt', )
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
     @action(detail=True, url_path='similar', url_name='similar_post')
     def similar(self, request, pk):
         post = get_object_or_404(Post.public, pk=pk)
@@ -143,6 +146,7 @@ class CategoryViewSet(
     pagination_class = Pagination
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ('id', 'name', 'level',)
 
     search_fields = ('name',)
     ordering_fields = ('post_count', )
@@ -194,10 +198,13 @@ class CommentViewSet(
         mixins.ListModelMixin,
         GenericViewSet):
     queryset = Comment.objects.all()
-    permission_classes = []
+    # permission_classes = []
     serializer_class = CommentSerializer
     pagination_class = CommentPagination
 
     filterset_fields = ['post', 'parent', 'reply_to', 'author', ]
     search_fields = ['content', ]
-    ordering = 'id'
+    ordering = '-id'
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)

@@ -1,28 +1,27 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError
-from blog.models import Post
-from ..models import RootComment, ChildComment
 
-# # TODO 修改其他的报错行为, 以字段映射字典返回更加详细的信息
+from ..models import RootComment, ChildComment
+from blog.models import Post
+from user.utils.serializers import UserField
+
+# TODO 修改其他的报错行为, 以字段映射字典返回更加详细的信息
 
 
 class PostRootCommentSerializer(serializers.ModelSerializer):
     content_type = serializers.HiddenField(
-        default=ContentType.objects.get_for_model(Post))
+        default=lambda: ContentType.objects.get_for_model(Post))
     post_id = serializers.IntegerField(source='object_id', label='文章id')
-    owner_detail = serializers.SerializerMethodField()
+    owner = UserField()
 
     class Meta:
         model = RootComment
-        fields = ('content_type', 'owner', 'owner_detail', 'id', 'post_id', 'vote_count', 'child_comment_count',
+        fields = ('content_type', 'owner', 'id', 'post_id', 'vote_count', 'child_comment_count',
                   'created', 'content', )
         extra_kwargs = {
             'created': {'read_only': True, 'format': '%Y-%m-%d %H:%M:%S'},
         }
-
-    def get_owner_detail(self, obj):
-        return {'id': obj.owner.id, 'nickname': obj.owner.nickname, 'username': obj.owner.username, 'avatar': obj.owner.avatar}
 
 
 def to_same_root_comment(data):
@@ -33,19 +32,16 @@ def to_same_root_comment(data):
 class PostChildCommentSerializer(serializers.ModelSerializer):
     content_type = serializers.HiddenField(
         default=ContentType.objects.get_for_model(Post))
-    owner_detail = serializers.SerializerMethodField()
+    owner = UserField()
 
     class Meta:
         model = ChildComment
-        fields = ('content_type', 'owner', 'owner_detail', 'id', 'root_comment', 'vote_count',
+        fields = ('content_type', 'owner', 'id', 'root_comment', 'vote_count',
                   'created', 'content', )
         extra_kwargs = {
             'created': {'read_only': True, 'format': '%Y-%m-%d %H:%M:%S'},
         }
         validators = [to_same_root_comment]
-
-    def get_owner_detail(self, obj):
-        return {'id': obj.owner.id, 'nickname': obj.owner.nickname, 'username': obj.owner.username, 'avatar': obj.owner.avatar}
 
 
 # def to_same_object(data):

@@ -1,11 +1,9 @@
 from . import validators
 from ..models import *
-from user.utils.serializers import UserInfoSerializer
+from user.utils.serializers import UserInfoSerializer, UserField
 from utils.rest.serializers import drf as serializers, ModelSerializer
 from utils.rest.validators import (
     RelatedToOwnValidator, UniqueTogetherValidator, M2MNumValidator, RecursiveRelationValidator)
-
-# TODO 取消author_display字段, 改为author和author_配合
 
 
 class TagSerializer(ModelSerializer):
@@ -55,8 +53,7 @@ class CategorySerializer(ModelSerializer):
 
 
 class PostSerializer(ModelSerializer):
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    author_display = serializers.SerializerMethodField()
+    author = UserField()
     tags_display = serializers.SerializerMethodField()
     categories = serializers.SerializerMethodField()
     excerpt = serializers.SerializerMethodField()
@@ -64,7 +61,7 @@ class PostSerializer(ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('id', 'title', 'author', 'author_id', 'author_display', 'is_public', 'allow_comments', 'created',
+        fields = ('id', 'title', 'author', 'is_public', 'allow_comments', 'created',
                   'updated', 'tags', 'tags_display', 'category', 'categories', 'comment_count', 'excerpt', 'cover', 'content', 'like_count', 'liked')
         read_only_fields = ('created', 'updated',
                             'vote_count', 'comment_count', 'author', 'like_count')
@@ -97,9 +94,6 @@ class PostSerializer(ModelSerializer):
     def get_tags_display(self, row):
         return ({'id': tag.id, 'name': tag.name} for tag in row.tags.all())
 
-    def get_author_display(self, instance):
-        return UserInfoSerializer(instance.author).data
-
     def get_excerpt(self, obj):
         return obj.excerpt()
 
@@ -113,9 +107,7 @@ class PostSerializer(ModelSerializer):
 
 
 class CommentSerializer(ModelSerializer):
-    author_ = serializers.HiddenField(
-        source='author', default=serializers.CurrentUserDefault())
-    author = serializers.SerializerMethodField()
+    author = UserField()
     child_count = serializers.SerializerMethodField()
     reply_to_author = serializers.SerializerMethodField()
     # children = serializers.SerializerMethodField()
@@ -123,11 +115,8 @@ class CommentSerializer(ModelSerializer):
     class Meta:
         model = Comment
         fields = (
-            'author', 'author_', 'child_count',  'content', 'created', 'id', 'parent', 'post', 'reply_to', 'reply_to_author', 'like_count'
+            'author', 'child_count',  'content', 'created', 'id', 'parent', 'post', 'reply_to', 'reply_to_author', 'like_count'
         )
-
-    def get_author(self, instance):
-        return UserInfoSerializer(instance.author).data
 
     def get_child_count(self, instance):
         return instance.children.count()

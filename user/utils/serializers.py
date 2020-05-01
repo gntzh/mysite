@@ -4,6 +4,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.validators import RegexValidator
+from django.utils.translation import gettext_lazy as _
 
 from utils.rest.serializers import ModelSerializer
 
@@ -80,3 +81,30 @@ class UserInfoSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'avatar', ]
+
+
+class UserField(serializers.RelatedField):
+    default_error_messages = {
+        'required': _('This field is required.'),
+        'does_not_exist': _('Invalid pk "{pk_value}" - object does not exist.'),
+        'incorrect_type': _('Incorrect type. Expected pk value, received {data_type}.'),
+    }
+
+    def __init__(self, method=None, **kwargs):
+        self.method = method
+        kwargs.setdefault('queryset', User.objects.all())
+        kwargs.setdefault('default', serializers.CurrentUserDefault())
+        super().__init__(**kwargs)
+
+    def to_internal_value(self, pk):
+        try:
+            return self.get_queryset().get(pk=pk)
+        except ObjectDoesNotExist:
+            self.fail('does_not_exist', pk_value=pk)
+        except (TypeError, ValueError):
+            self.fail('incorrect_type', data_type=type(pk).__name__)
+
+    def to_representation(self, user):
+        if self.method is not None:
+            return self.method(user)
+        return UserInfoSerializer(user).data

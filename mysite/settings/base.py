@@ -40,12 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third-party App
-    'django_extensions',
-    "rest_framework",
-    'django_filters',
-    'debug_toolbar',
     'corsheaders',
+    'debug_toolbar',
+    'django_celery_beat',
+    'django_extensions',
+    'django_filters',
     'mptt',
+    "rest_framework",
     # Costumed App
     'blog.apps.BlogConfig',
     'user.apps.UserConfig',
@@ -249,15 +250,16 @@ ALLOW_COMMENTS_MODELS = [('blog', 'post'), ('user', 'user'), ]
 # 搜索索引
 INDEX_DIR = os.path.join(BASE_DIR, 'search_index')
 
-#Celery
-## celery中间人 redis://redis服务所在的ip地址:端口/数据库号
+# Celery
+# celery中间人 redis://redis服务所在的ip地址:端口/数据库号
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-## celery结果返回，可用于跟踪结果
+# celery结果返回，可用于跟踪结果
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
-## celery内容等消息的格式设置
+# celery内容等消息的格式设置
 CELERY_ACCEPT_CONTENT = ['application/json', ]
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-## celery时区设置，使用settings中TIME_ZONE同样的时区
+# celery时区设置，使用settings中TIME_ZONE同样的时区
 CELERY_TIMEZONE = TIME_ZONE
-CELERYD_MAX_TASKS_PER_CHILD = 100 # 每个worker执行了多少任务就会死掉
+CELERY_MAX_TASKS_PER_CHILD = 100  # 每个worker执行了多少任务就会死掉
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

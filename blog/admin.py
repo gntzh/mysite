@@ -1,7 +1,11 @@
 from django.contrib import admin
 from mptt.admin import DraggableMPTTAdmin
-from comment.admin import RootCommentInline
 from .models import *
+
+
+class CommentInline(admin.TabularInline):
+    model = Comment
+    extra = 1
 
 
 class PostLikesInline(admin.TabularInline):
@@ -28,7 +32,7 @@ class PostAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ('title', 'author')}),
         (None, {'fields': (('created', 'updated'),
-                           ('is_public', 'allow_comments'),
+                           ('is_public', 'allow_comments', 'need_index'),
                            ('comment_count'), 'category', 'tags', 'cover')}),
         ('内容', {'fields': ('content',)})
     ]
@@ -36,7 +40,6 @@ class PostAdmin(admin.ModelAdmin):
 
     inlines = [
         PostLikesInline,
-        RootCommentInline,
     ]
 
     def like_count(self, obj):

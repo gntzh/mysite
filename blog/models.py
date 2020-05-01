@@ -11,7 +11,7 @@ User = settings.AUTH_USER_MODEL
 
 
 class Tag(models.Model):
-    name = models.CharField('名称', max_length=32)
+    name = models.CharField('名称', max_length=32, unique=True)
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_query_name='tag', verbose_name='创建者')
 
@@ -78,7 +78,7 @@ class Post(models.Model):
         User, through='PostLike', related_name='liked_posts', verbose_name='点赞')
     like_count = models.PositiveIntegerField('点赞量', default=0)
 
-    need_index = models.BooleanField('更新搜索索引', default=True)
+    need_index = models.BooleanField('是否需要更新索引', default=True)
 
     comment_count = models.PositiveIntegerField('评论数', default=0)
 
@@ -95,6 +95,10 @@ class Post(models.Model):
 
     def __str__(self):
         return '%s' % self.title[:16]
+
+    def save(self, *args, **kwargs):
+        self.need_index = self.is_public
+        super().save(*args, **kwargs)
 
 
 class PostLike(models.Model):
