@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third-party App
+    'channels',
     'corsheaders',
     'debug_toolbar',
     'django_celery_beat',
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     # Costumed App
     'blog.apps.BlogConfig',
     'user.apps.UserConfig',
+    'chat.apps.ChatConfig',
     'comment.apps.CommentConfig',
     'picture.apps.PictureConfig',
     'apps.newpneumonia.apps.NewpneumoniaConfig',
@@ -263,3 +265,14 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_MAX_TASKS_PER_CHILD = 100  # 每个worker执行了多少任务就会死掉
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# Channels
+ASGI_APPLICATION = 'mysite.routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}

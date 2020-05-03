@@ -6,4 +6,4 @@ pytest-django==3.9.0
 
 # Code quality
 autopep8==1.5.2
-pylint==2.4.4
+pylint==2.5.0

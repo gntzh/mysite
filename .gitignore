@@ -154,18 +154,14 @@ media/
 # uWSGI
 scripts/uwsgi.pid
 
-# log
-log/
+# 上线运行需要和产生的文件
+.run/
 
 # whoosh索引文件
 whoosh_index/
 search_index/
 
 *.ipynb
-
-# 生成的部署文件
-uwsgi.ini
-nginx.conf
 
 # redis dump
 *.rdb

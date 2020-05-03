@@ -19,10 +19,14 @@ upstream ${project} {
 	server unix://${socket};
 }
 
+upstream ${project}_channels {
+    server ${channels_socket};
+}
+
 server {
 	listen 80;
-    server_name test.test www.test.test;
-	# server_name shoor.xyz www.shoor.xyz 111.229.59.77;
+	listen [::]:80;
+	server_name shoor.xyz www.shoor.xyz 111.229.59.77;
 	charset utf-8;
 
 	client_max_body_size 10M;
@@ -39,6 +43,20 @@ server {
 		include /etc/nginx/uwsgi_params;
 		uwsgi_pass ${project};
 	}
+	
+	location /ws/ {
+        proxy_pass http://mysite_channels;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $server_name;
+    }
 
 	location / {
 		root ${front}/dist;
@@ -52,31 +70,51 @@ server {
 def main():
     uwsgi = ConfigParser()
     base = Path.cwd()
+    base_str = base.as_posix()
     project = 'mysite'
     uwsgi['uwsgi'] = {
         'chdir': base,
         'module': f'{project}.wsgi:application',
         'home': f'{base}/.venv',
-        'socket': f'/run/{project}.uwsgi.sock',
-        'pidfile': f'/run/{project}.uwsgi.pid',
+        'socket': f'{base_str}/.run/socket/uwsgi.sock',
+        'pidfile': f'{base_str}/.run/pid/uwsgi.pid',
         'master': True,
         'processes': 4,
         'max-request': 5000,
         'harakiri': 60,
-        'daemonize': f'/var/log/{project}.uwsgi.log',
+        'daemonize': f'{base_str}/.run/log/uwsgi.log',
         'disable-logging': True,
         'vacuum': True,
     }
-    (base)
-    with (base / 'uwsgi.ini').open('w', encoding='utf-8`') as fo:
+    supervisor = ConfigParser(interpolation=None)
+    supervisor['fcgi-program:mysite_channels'] = {
+        'socket':'tcp://localhost:8010',
+        'directory':base_str,
+        'command': f'{base_str}/.venv/bin/daphne --fd 0 --access-log - --proxy-headers {project}.asgi:application',
+        'numprocs':4,
+        'process_name':'mysite_channels%(process_num)d',
+        'autostart':True,
+        'autorestart':True,
+        'stdout_logfile': f'{base_str}/.run/log/channels.log',
+        'redirect_stderr':True,
+    } 
+    path = base / '.run' / 'config'
+    path.mkdir(parents=True, exist_ok=True)
+    (base / '.run' / 'pid').mkdir(exist_ok=True)
+    (base / '.run' / 'socket').mkdir(exist_ok=True)
+    (base / '.run' / 'log').mkdir(exist_ok=True)
+    with (path / 'uwsgi.ini').open('w', encoding='utf-8`') as fo:
         uwsgi.write(fo)
+    with (path / 'supervisor.ini').open('w', encoding='utf-8`') as fo:
+        supervisor.write(fo)
     nginx = MyTemplate(NGINX_TEMPLATE).safe_substitute(
         uwsgi['uwsgi'],
         base=base,
         project=project,
         front=base.parent / 'mysite_front',
+        channels_socket=supervisor['fcgi-program:mysite_channels']['socket'][6:]
     )
-    (base / 'nginx.conf').write_text(nginx, encoding='utf-8')
+    (path / 'nginx.conf').write_text(nginx, encoding='utf-8')
 
 
 if __name__ == "__main__":
