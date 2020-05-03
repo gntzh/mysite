@@ -159,7 +159,7 @@ scripts/uwsgi.pid
 
 # whoosh索引文件
 whoosh_index/
-search_index/
+.search_index/
 
 *.ipynb
 

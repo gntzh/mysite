@@ -12,8 +12,8 @@ from rest_framework.views import Response, status
 from rest_framework_simplejwt.tokens import Token, TokenError
 from urllib.parse import urlencode
 
-from utils.jwt import get_tokens_for_user
-from utils.rest.mixins import ListModelMixin, RetrieveModelMixin
+from libs.jwt import get_tokens_for_user
+from libs.rest.mixins import ListModelMixin, RetrieveModelMixin
 from django.shortcuts import redirect
 from .models import OUser
 from .utils import serializers, permissions

@@ -1,8 +1,8 @@
 from . import validators
 from ..models import *
 from user.utils.serializers import UserInfoSerializer, UserField
-from utils.rest.serializers import drf as serializers, ModelSerializer
-from utils.rest.validators import (
+from libs.rest.serializers import drf as serializers, ModelSerializer
+from libs.rest.validators import (
     RelatedToOwnValidator, UniqueTogetherValidator, M2MNumValidator, RecursiveRelationValidator)
 
 

@@ -250,7 +250,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 ALLOW_COMMENTS_MODELS = [('blog', 'post'), ('user', 'user'), ]
 
 # 搜索索引
-INDEX_DIR = os.path.join(BASE_DIR, 'search_index')
+INDEX_DIR = os.path.join(BASE_DIR, '.run', 'search_index')
 
 # Celery
 # celery中间人 redis://redis服务所在的ip地址:端口/数据库号

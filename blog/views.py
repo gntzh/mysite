@@ -4,6 +4,7 @@ from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import Http404, JsonResponse
 from django.utils.decorators import method_decorator
+from django.utils.functional import LazyObject
 from mptt.utils import get_cached_trees
 from rest_framework import status
 from rest_framework.decorators import action, api_view
@@ -14,9 +15,9 @@ from rest_framework.reverse import reverse
 from rest_framework.viewsets import GenericViewSet, ViewSet
 
 from utils.decorators import params
-from utils.rest.mixins import drf as mixins, ListModelMixin, RetrieveModelMixin, ExistsModelMixin
-from utils.rest.permissions import isOwnerOrReadOnly
-from utils.search.backend import SearchBackend, highlighter
+from libs.rest.mixins import drf as mixins, ListModelMixin, RetrieveModelMixin, ExistsModelMixin
+from libs.rest.permissions import isOwnerOrReadOnly
+from libs.search.backend import SearchBackend, highlighter
 from utils.shortcuts import get_object_or_404
 from utils.tools import get_tree
 
@@ -170,8 +171,20 @@ class CategoryViewSet(
 
 
 pm = PostModel()
-backend = SearchBackend(pm, settings.INDEX_DIR, pm.indexname)
-parser = QueryParser('text', schema=backend.schema)
+
+
+class LazySearchBackend(LazyObject):
+    def _setup(self):
+        self._wrapped = SearchBackend(pm, settings.INDEX_DIR, pm.indexname)
+
+
+class LazyQueryParser(LazyObject):
+    def _setup(self):
+        self._wrapped = QueryParser('text', schema=backend.schema)
+
+
+backend = LazySearchBackend()
+parser = LazyQueryParser()
 
 
 @api_view(['GET'])

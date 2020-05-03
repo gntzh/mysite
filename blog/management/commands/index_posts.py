@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from blog.search import PostModel
-from utils.search.backend import SearchBackend
+from libs.search.backend import SearchBackend
 
 
 class Command(BaseCommand):

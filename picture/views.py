@@ -1,10 +1,10 @@
 from rest_framework.viewsets import GenericViewSet
 
-from utils.rest.mixins import drf as mixins
+from libs.rest.mixins import drf as mixins
 
 from .models import Album, ThirdPartyImage, Hosting
 from .utils.serializers import TPImageSerializer, HostingSerializer, AlbumSerializer
-from utils.rest.permissions import isOwnerOrReadOnly
+from libs.rest.permissions import isOwnerOrReadOnly
 from .utils import filters
 
 

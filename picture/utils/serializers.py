@@ -1,4 +1,4 @@
-from utils.rest.serializers import drf as serializers
+from libs.rest.serializers import drf as serializers
 
 from ..models import Album, ThirdPartyImage, Hosting
 

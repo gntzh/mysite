@@ -4,7 +4,7 @@ from django.conf import settings
 
 from mysite.celery import app
 from blog.search import PostModel
-from utils.search.backend import SearchBackend
+from libs.search.backend import SearchBackend
 
 
 @app.task

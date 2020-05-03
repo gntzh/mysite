@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 
-from utils.rest.serializers import ModelSerializer
+from libs.rest.serializers import ModelSerializer
 
 User = get_user_model()
 

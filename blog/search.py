@@ -1,7 +1,7 @@
 from django.utils.functional import cached_property
 
 from whoosh.fields import TEXT, ID, KEYWORD, STORED
-from utils.search.fields import Model, Field
+from libs.search.fields import Model, Field
 from blog.models import Post
 
 
