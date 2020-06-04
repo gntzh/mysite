@@ -34,7 +34,7 @@ server {
 	location /media {
 		alias ${base}/media;
 	}
-	
+
 	location /static {
 		alias ${base}/collected_static;
 	}
@@ -43,7 +43,7 @@ server {
 		include /etc/nginx/uwsgi_params;
 		uwsgi_pass ${project};
 	}
-	
+
 	location /ws/ {
         proxy_pass http://mysite_channels;
 
