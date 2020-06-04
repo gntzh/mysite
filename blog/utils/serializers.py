@@ -1,9 +1,14 @@
 from . import validators
 from ..models import *
 from user.utils.serializers import UserInfoSerializer, UserField
+from libs.rest.fields import PrimaryKeyRelatedField
 from libs.rest.serializers import drf as serializers, ModelSerializer
 from libs.rest.validators import (
     RelatedToOwnValidator, UniqueTogetherValidator, M2MNumValidator, RecursiveRelationValidator)
+
+
+def pk_and_name(ins):
+    return {'pk': ins.pk, 'name': ins.name}
 
 
 class TagSerializer(ModelSerializer):
@@ -54,21 +59,21 @@ class CategorySerializer(ModelSerializer):
 
 class PostSerializer(ModelSerializer):
     author = UserField()
-    tags_display = serializers.SerializerMethodField()
     categories = serializers.SerializerMethodField()
     excerpt = serializers.SerializerMethodField()
     liked = serializers.SerializerMethodField()
+    tags = serializers.ManyRelatedField(
+        PrimaryKeyRelatedField(pk_and_name, queryset=Tag.objects.all()), required=False)
 
     class Meta:
         model = Post
         fields = ('id', 'title', 'author', 'is_public', 'allow_comments', 'created',
-                  'updated', 'tags', 'tags_display', 'category', 'categories', 'comment_count', 'excerpt', 'cover', 'content', 'like_count', 'liked')
+                  'updated', 'tags', 'category', 'categories', 'comment_count', 'excerpt', 'cover', 'content', 'like_count', 'liked')
         read_only_fields = ('created', 'updated',
                             'vote_count', 'comment_count', 'author', 'like_count')
         extra_kwargs = {
             'created': {'format': '%Y-%m-%d %H:%M:%S'},
             'updated': {'format': '%Y-%m-%d %H:%M:%S'},
-            'tags': {'write_only': True, },
             'category': {'write_only': True, },
             'is_public': {'default': True},
         }
@@ -82,7 +87,7 @@ class PostSerializer(ModelSerializer):
         if row.category is not None:
             return [{'id': c.id, 'name': c.name} for c in row.category.get_ancestors(include_self=True)]
             return {"id": row.category.id, "name": row.category.name}
-        return None
+        return []
         # res = []
         # n = 0
         # while cate is not None and n < 10:
@@ -90,9 +95,6 @@ class PostSerializer(ModelSerializer):
         #     cate = cate.parent
         #     n += 1
         # return res[::-1]
-
-    def get_tags_display(self, row):
-        return ({'id': tag.id, 'name': tag.name} for tag in row.tags.all())
 
     def get_excerpt(self, obj):
         return obj.excerpt()

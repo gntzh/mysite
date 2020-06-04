@@ -179,6 +179,18 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+# drf-yasg
+SWAGGER_SETTINGS = {
+    'DEFAULT_INFO': 'mysite.swagger.api_info',
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
+REDOC_SETTINGS = {}
 
 # django-cors-headers
 CORS_ORIGIN_ALLOW_ALL = True

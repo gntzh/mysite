@@ -108,3 +108,14 @@ class UserField(serializers.RelatedField):
         if self.method is not None:
             return self.method(user)
         return UserInfoSerializer(user).data
+
+    def get_choices(self, cutoff=None):
+        queryset = self.get_queryset()
+        if queryset is None:
+            return {}
+
+        if cutoff is not None:
+            queryset = queryset[:cutoff]
+        return {
+            item.pk: self.display_value(item) for item in queryset
+        }

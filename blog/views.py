@@ -35,6 +35,20 @@ class PostViewSet(
         mixins.UpdateModelMixin,
         mixins.DestroyModelMixin,
         GenericViewSet):
+    '''
+    list:
+        获取文章列表
+    create:
+        添加文章
+    retrieve：
+        查看文章详情
+    update：
+        修改文章
+    partial_update:
+        部分修改文章
+    delete:
+        删除记录 
+    '''
     permission_classes = (isOwnerOrReadOnly('author'), )
     serializer_class = PostSerializer
     queryset = Post.public.select_related(

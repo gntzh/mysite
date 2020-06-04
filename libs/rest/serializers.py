@@ -2,10 +2,6 @@ from rest_framework import serializers as drf
 
 
 class ModelSerializer(drf.ModelSerializer):
-    """
-    A ModelSerializer that takes an additional `excluded` argument that
-    controls which fields should be displayed.
-    """
 
     def __init__(self, *args, **kwargs):
         # 自定义的参数不能传递给ModelSerializer
