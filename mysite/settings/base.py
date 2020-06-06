@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     'comment.apps.CommentConfig',
     'picture.apps.PictureConfig',
     'apps.newpneumonia.apps.NewpneumoniaConfig',
-
+    'apps.info.apps.InfoConfig',
 ]
 
 MIDDLEWARE = [
