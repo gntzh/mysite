@@ -19,7 +19,7 @@ upstream ${project} {
 	server unix://${socket};
 }
 
-upstream ${project}_channels {
+upstream ${project}-channels {
     server ${channels_socket};
 }
 
@@ -45,7 +45,7 @@ server {
 	}
 
 	location /ws/ {
-        proxy_pass http://mysite_channels;
+        proxy_pass http://mysite-channels;
 
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -88,16 +88,27 @@ def main():
     }
     supervisor = ConfigParser(interpolation=None)
     supervisor['fcgi-program:mysite_channels'] = {
-        'socket':'tcp://localhost:8010',
-        'directory':base_str,
-        'command': f'{base_str}/.venv/bin/daphne --fd 0 --access-log - --proxy-headers {project}.asgi:application',
-        'numprocs':4,
-        'process_name':'mysite_channels%(process_num)d',
-        'autostart':True,
-        'autorestart':True,
+        'socket': 'tcp://localhost:8010',
+        'directory': base_str,
+        'command': f'.venv/bin/daphne --fd 0 --access-log - --proxy-headers {project}.asgi:application',
+        'numprocs': 2,
+        'process_name': 'mysite_channels%(process_num)d',
+        'autostart': True,
+        'autorestart': True,
         'stdout_logfile': f'{base_str}/.run/log/channels.log',
-        'redirect_stderr':True,
-    } 
+        'redirect_stderr': True,
+        'stopwaitsecs': 600,
+    }
+    supervisor['program:mysite_celery'] = {
+        'directory': base_str,
+        'numprocs': 1,
+        'command': f'.venv/bin/celery -A mysite worker -B -l info',
+        'stdout_logfile': f'{base_str}/.run/log/celery.log',
+        'stderr_logfile': f'{base_str}/.run/log/celery_err.log',
+        'stopwaitsecs': 600,
+        'stopasgroup': True,
+        'priority': 1000,
+    }
     path = base / '.run' / 'config'
     path.mkdir(parents=True, exist_ok=True)
     (base / '.run' / 'pid').mkdir(exist_ok=True)

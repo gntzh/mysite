@@ -1,5 +1,3 @@
-import time
-import datetime
 import hmac
 import hashlib
 import base64
@@ -23,4 +21,4 @@ def send_info(info):
     }
     webhook = 'https://oapi.dingtalk.com/robot/send'
     res = requests.post(webhook, params=params, json=info)
-    return res.json()['errmsg']
+    return res.json().get('errmsg', 'success')

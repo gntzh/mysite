@@ -6,7 +6,8 @@ from pathlib import Path
 mode = os.environ.get('SITE_MODE', 'dev')
 base = Path(__file__).resolve().parent.parent.parent
 
-conf = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
+conf = configparser.ConfigParser(
+    interpolation=configparser.ExtendedInterpolation())
 conf.read(base / '.env')
 env = conf[mode if conf.has_section(mode) else 'dev']
 
@@ -23,3 +24,5 @@ DINGTALK_SECRET = env['DINGTALK_SECRET']
 EMAIL_HOST_USER = env['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD = env['EMAIL_HOST_PASSWORD']
 DEFAULT_EMAIL_FROM = env['DEFAULT_EMAIL_FROM']
+
+WEIBO_ACCESS_TOKEN = env['WEIBO_ACCESS_TOKEN']

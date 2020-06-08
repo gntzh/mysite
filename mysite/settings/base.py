@@ -253,6 +253,9 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_MAX_TASKS_PER_CHILD = 100  # 每个worker执行了多少任务就会死掉
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
+# Info app
+INFO_APP_REDIS = 'redis://127.0.0.1:6379/0'
+
 # Channels
 ASGI_APPLICATION = 'mysite.routing.application'
 CHANNEL_LAYERS = {

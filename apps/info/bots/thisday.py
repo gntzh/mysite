@@ -50,7 +50,7 @@ def lssdjt(month, day):
             e = {}
             e['title'] = hot.text
             if e['title'].startswith('-'):
-                e['title'].replace('-', '公元前', 1)
+                e['title'] = e['title'].replace('-', '公元前', 1)
             e['messageURL'] = 'http://m.lssdjt.com'+hot.xpath('@href')[0]
             rel = img.xpath('@rel')
             if rel:
