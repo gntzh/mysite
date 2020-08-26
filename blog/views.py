@@ -179,8 +179,7 @@ class CategoryViewSet(
     @action(detail=True, url_path='tree')
     def one_tree(self, request, pk):
         obj = get_object_or_404(self.queryset, pk=pk)
-        root = get_cached_trees(obj.get_descendants(
-            include_self=True))
+        root = get_cached_trees(obj.get_descendants(include_self=True))
         return Response(data=get_tree(root[0], ('id', 'name', )))
 
 

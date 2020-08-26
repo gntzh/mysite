@@ -1,8 +1,7 @@
-import os
+from pathlib import Path
 from datetime import timedelta
 
-BASE_DIR = os.path.dirname(os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 
 DEBUG = False
 
@@ -33,6 +32,7 @@ INSTALLED_APPS = [
     'picture.apps.PictureConfig',
     'apps.newpneumonia.apps.NewpneumoniaConfig',
     'apps.info.apps.InfoConfig',
+    'apps.task.apps.TaskConfig',
 ]
 
 MIDDLEWARE = [
@@ -54,7 +54,7 @@ ROOT_URLCONF = 'mysite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,18 +70,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
 # Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mysite',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -97,9 +95,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
-# https://docs.djangoproject.com/en/2.2/topics/i18n/
-
 LANGUAGE_CODE = 'zh-Hans'
 
 TIME_ZONE = 'Asia/Shanghai'
@@ -111,9 +106,16 @@ USE_L10N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+STATICFILES_DIRS = []
+# 静态文件网页路径
 STATIC_URL = '/static/'
+# 其他需要收集的静态文件目录
+# 收集来的静态文件存放目录
+STATIC_ROOT = BASE_DIR / 'collected_static'
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Other settings
 
@@ -220,24 +222,13 @@ CORS_ALLOW_HEADERS = (
     'Pragma',
 )
 
-# Static files
-# 静态文件网页路径
-STATIC_URL = '/static/'
-# 其他需要收集的静态文件目录
-STATICFILES_DIRS = []
-# 收集来的静态文件存放目录
-STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
-
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # 允许评论的模型
 ## 二元元组的第一项为模型的app, 第二项为模型的名称, 分别对应django_content_type表中的app_label和model
 ALLOW_COMMENTS_MODELS = [('blog', 'post'), ('user', 'user'), ]
 
 # 搜索索引
-INDEX_DIR = os.path.join(BASE_DIR, '.run', 'search_index')
+INDEX_DIR = BASE_DIR / '.run/search_index'
 
 # Celery
 # celery中间人 redis://redis服务所在的ip地址:端口/数据库号
@@ -304,7 +295,7 @@ LOGGING = {
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'when': 'midnight',
             'backupCount': 30,
-            'filename': os.path.join(BASE_DIR, '.run/log/django.log'),
+            'filename': BASE_DIR / '.run/log/django.log',
         },
         'mail_admins': {
             'level': 'ERROR',

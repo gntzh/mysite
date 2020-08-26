@@ -90,7 +90,7 @@ def main():
     supervisor['fcgi-program:mysite_channels'] = {
         'socket': 'tcp://localhost:8010',
         'directory': base_str,
-        'command': f'.venv/bin/daphne --fd 0 --access-log - --proxy-headers {project}.asgi:application',
+        'command': f'{base_str}/.venv/bin/daphne --fd 0 --access-log - --proxy-headers {project}.asgi:application',
         'numprocs': 2,
         'process_name': 'mysite_channels%(process_num)d',
         'autostart': True,
@@ -102,7 +102,7 @@ def main():
     supervisor['program:mysite_celery'] = {
         'directory': base_str,
         'numprocs': 1,
-        'command': f'.venv/bin/celery -A mysite worker -B -l info',
+        'command': f'{base_str}/.venv/bin/celery -A mysite worker -B -l info',
         'stdout_logfile': f'{base_str}/.run/log/celery.log',
         'stderr_logfile': f'{base_str}/.run/log/celery_err.log',
         'stopwaitsecs': 600,

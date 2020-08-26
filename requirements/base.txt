@@ -1,4 +1,4 @@
-celery==4.4.4
+celery==4.4.5
 channels==2.4.0
 channels-redis==2.4.2
 Faker
@@ -13,6 +13,7 @@ Whoosh==2.7.4
 
 # Django
 Django==3.0.7
+psycopg2-binary==2.8.5
 django-celery-beat==2.0.0
 django-cors-headers
 django-debug-toolbar
